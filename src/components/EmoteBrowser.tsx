@@ -213,6 +213,12 @@ export default function EmoteBrowser({ data }: Props) {
         )}
       </main>
 
+      <footer class="app-footer">
+        <a href="https://areyes.es" target="_blank" rel="noopener noreferrer">
+          © 2026 Adrian Reyes
+        </a>
+      </footer>
+
       <SelectionBar
         selected={selectedEmotes}
         onClear={clearSelection}
@@ -309,6 +315,25 @@ export default function EmoteBrowser({ data }: Props) {
         .btn-secondary:hover {
           background: var(--bg-hover);
           border-color: var(--border-light);
+        }
+
+        .app-footer {
+          max-width: 1600px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 16px 24px 120px;
+          text-align: center;
+          font-size: 12px;
+        }
+
+        .app-footer a {
+          color: var(--text-muted);
+          text-decoration: none;
+          transition: color var(--transition);
+        }
+
+        .app-footer a:hover {
+          color: var(--text-secondary);
         }
       `}</style>
     </div>
