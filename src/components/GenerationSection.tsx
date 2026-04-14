@@ -1,4 +1,5 @@
 import type { TalentMap, SelectedEmote } from '../types';
+import { hasTalentTransform } from '../emote-naming';
 import TalentSection from './TalentSection';
 
 interface Props {
@@ -76,6 +77,7 @@ export default function GenerationSection({
               onSelectAll={() => onSelectAllForTalent(branchName, generation, talent, emotes)}
               onDeselectAll={() => onDeselectAllForTalent(branchName, generation, talent, emotes)}
               isFullySelected={isTalentFullySelected(branchName, generation, talent, emotes)}
+              hasTransform={hasTalentTransform(talent)}
             />
           ))}
         </div>

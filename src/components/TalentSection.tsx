@@ -13,6 +13,7 @@ interface Props {
   onSelectAll: () => void;
   onDeselectAll: () => void;
   isFullySelected: boolean;
+  hasTransform: boolean;
 }
 
 export default function TalentSection({
@@ -27,6 +28,7 @@ export default function TalentSection({
   onSelectAll,
   onDeselectAll,
   isFullySelected,
+  hasTransform,
 }: Props) {
   const count = Object.keys(emotes).length;
 
@@ -56,7 +58,35 @@ export default function TalentSection({
         >
           <polyline points="9 18 15 12 9 6" />
         </svg>
-        <span class="talent-name">{talent}</span>
+        <span class="talent-name-row">
+          <span class="talent-name">{talent}</span>
+          {!hasTransform && (
+            <span
+              class="talent-naming-warn"
+              role="img"
+              aria-label="Default Slack naming: custom transform not configured for this talent"
+              title="Custom emote naming not configured — Slack export uses the default transform"
+            >
+              <svg
+                class="talent-naming-warn-icon"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              Default naming
+            </span>
+          )}
+        </span>
         <span class="talent-count">{count} emote{count !== 1 ? 's' : ''}</span>
         <button
           class={`select-all-btn ${isFullySelected ? 'deselect' : ''}`}
@@ -137,10 +167,43 @@ export default function TalentSection({
           color: var(--accent);
         }
 
+        .talent-name-row {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex: 1;
+          min-width: 0;
+        }
+
         .talent-name {
           font-size: 12.5px;
           font-weight: 600;
-          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .talent-naming-warn {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          flex-shrink: 0;
+          font-size: 9px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          color: var(--warning, #e5a00d);
+          border: 1px solid color-mix(in srgb, var(--warning, #e5a00d) 45%, var(--border));
+          background: color-mix(in srgb, var(--warning, #e5a00d) 12%, var(--bg-elevated));
+          padding: 2px 5px;
+          border-radius: 4px;
+          line-height: 1;
+        }
+
+        .talent-naming-warn-icon {
+          flex-shrink: 0;
+          opacity: 0.95;
         }
 
         .talent-count {
