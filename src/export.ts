@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import type { SelectedEmote } from './types';
-import { toSlackName } from './emote-naming';
+import { toSlackName, type NamingConfig } from './emote-naming';
 
 /** Wikitide / MediaWiki thumb URLs: .../thumb/<hash>/<file>/<N>px-<file> */
 const RESIZABLE_PATH = /^(.+)\/thumb\/(.+)\/\d+px-[^/]+$/;
@@ -80,15 +80,21 @@ function extensionFromUrl(url: string): string {
   }
 }
 
-function uniqueZipEntryName(base: string, ext: string, used: Set<string>): string {
+function uniqueZipEntryName(
+  base: string,
+  ext: string,
+  used: Set<string>,
+  duplicateSep: string,
+): string {
   let name = `${base}${ext}`;
   if (!used.has(name)) {
     used.add(name);
     return name;
   }
   let n = 2;
-  while (used.has(`${base}-${n}${ext}`)) n += 1;
-  name = `${base}-${n}${ext}`;
+  const sep = duplicateSep;
+  while (used.has(`${base}${sep}${n}${ext}`)) n += 1;
+  name = `${base}${sep}${n}${ext}`;
   used.add(name);
   return name;
 }
@@ -126,17 +132,19 @@ async function fetchEmoteWithOptionalFallback(
 export async function exportForSlack(
   emotes: SelectedEmote[],
   resolution: ResolutionConfig = { mode: 'thumbnail' },
+  naming?: NamingConfig,
 ): Promise<void> {
   if (emotes.length === 0) return;
 
   const zip = new JSZip();
   const usedNames = new Set<string>();
+  const dupSep = naming?.separator ?? '-';
 
   for (const emote of emotes) {
-    const base = toSlackName(emote.talent, emote.name);
+    const base = toSlackName(emote.talent, emote.name, naming);
     const primaryUrl = resolveExportUrl(emote.url, resolution);
     const ext = extensionFromUrl(primaryUrl);
-    const entryName = uniqueZipEntryName(base, ext, usedNames);
+    const entryName = uniqueZipEntryName(base, ext, usedNames, dupSep);
 
     const useCustomFallback =
       resolution.mode === 'custom' && isResizableUrl(emote.url);

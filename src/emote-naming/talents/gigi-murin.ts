@@ -1,26 +1,51 @@
-import type { TalentNamingExports } from '../shared';
+import { type TalentNamingExports } from '../shared';
 
-const EXACT: Record<string, string> = {
-  grem: 'gigi-grem',
-  frewup: 'gigi-frew-up',
-  stopfight: 'gigi-stop-fight',
-};
+function joinParts(separator: string, ...parts: string[]): string {
+  const filtered = parts.filter((x) => x.length > 0);
+  if (!separator) return filtered.join('');
+  return filtered.join(separator);
+}
 
-const PREFIXES: [string, string][] = [
-  ['gigi', 'gigi-'],
-  ['popo', 'gigi-popo-'],
-  ['grem', 'gigi-grem-'],
-];
+function buildExact(separator: string, prefix: string): Record<string, string> {
+  const p = prefix.toLowerCase();
+  const sep = separator;
+  return {
+    grem: joinParts(sep, p, 'grem'),
+    frewup: joinParts(sep, p, 'frew', 'up'),
+    stopfight: joinParts(sep, p, 'stop', 'fight'),
+  };
+}
+
+function buildPrefixes(separator: string, prefix: string): [string, string][] {
+  const p = prefix.toLowerCase();
+  const sep = separator;
+  const gigiRep = sep ? `${p}${sep}` : p;
+  const popoRep = sep ? `${p}${sep}popo${sep}` : `${p}popo`;
+  const gremRep = sep ? `${p}${sep}grem${sep}` : `${p}grem`;
+  return [
+    ['gigi', gigiRep],
+    ['popo', popoRep],
+    ['grem', gremRep],
+  ];
+}
 
 export default {
-  'Gigi Murin': (inner: string): string => {
-    const key = inner.toLowerCase();
-    if (EXACT[key]) return EXACT[key];
-    for (const [prefix, replacement] of PREFIXES) {
-      if (key.startsWith(prefix)) {
-        return replacement + key.slice(prefix.length);
+  'Gigi Murin': {
+    defaultPrefix: 'gigi',
+    transform(inner: string, separator: string, prefix: string): string {
+      const key = inner.toLowerCase();
+      const sep = separator;
+      const p = prefix.toLowerCase();
+
+      const exact = buildExact(sep, p);
+      if (exact[key]) return exact[key];
+
+      for (const [pre, replacement] of buildPrefixes(sep, p)) {
+        if (key.startsWith(pre)) {
+          return replacement + key.slice(pre.length);
+        }
       }
-    }
-    return `gigi-${key}`;
+      return sep ? `${p}${sep}${key}` : `${p}${key}`;
+    },
   },
 } satisfies TalentNamingExports;

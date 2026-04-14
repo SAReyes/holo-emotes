@@ -9,6 +9,9 @@ import {
   type ResolutionConfig,
   type ResolutionMode,
 } from '../export';
+import { getDefaultPrefixes, hasTalentTransform, type NamingConfig } from '../emote-naming';
+
+type SlackExportModalTab = 'image' | 'naming';
 
 interface Props {
   selected: Map<string, SelectedEmote>;
@@ -23,6 +26,9 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   const [slackModalOpen, setSlackModalOpen] = useState(false);
   const [resolutionMode, setResolutionMode] = useState<ResolutionMode>('thumbnail');
   const [customPx, setCustomPx] = useState(256);
+  const [namingSeparator, setNamingSeparator] = useState('-');
+  const [namingPrefixes, setNamingPrefixes] = useState<Record<string, string>>({});
+  const [slackExportTab, setSlackExportTab] = useState<SlackExportModalTab>('image');
   const exportWrapRef = useRef<HTMLDivElement>(null);
   const count = selected.size;
   const visible = count > 0;
@@ -57,6 +63,38 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
     return () => document.removeEventListener('keydown', onKey);
   }, [slackModalOpen]);
 
+  const prefixTalentNames = [...new Set(entries.map(([, e]) => e.talent))]
+    .filter(hasTalentTransform)
+    .sort();
+  const prefixTalentKey = prefixTalentNames.join('\0');
+
+  useEffect(() => {
+    if (!slackModalOpen) return;
+    setNamingSeparator('-');
+    setSlackExportTab('image');
+  }, [slackModalOpen]);
+
+  useEffect(() => {
+    if (!slackModalOpen) return;
+    setNamingPrefixes((prev) => {
+      const defaults = getDefaultPrefixes(prefixTalentNames);
+      const next: Record<string, string> = { ...defaults };
+      for (const k of Object.keys(defaults)) {
+        if (prev[k] !== undefined) next[k] = prev[k];
+      }
+      return next;
+    });
+  }, [slackModalOpen, prefixTalentKey]);
+
+  function buildNamingConfig(): NamingConfig {
+    const prefixes: Record<string, string> = {};
+    for (const name of prefixTalentNames) {
+      const fallback = getDefaultPrefixes([name])[name] ?? '';
+      prefixes[name] = name in namingPrefixes ? namingPrefixes[name] : fallback;
+    }
+    return { separator: namingSeparator.trim(), prefixes };
+  }
+
   function buildResolutionConfig(): ResolutionConfig {
     if (resolutionMode === 'custom') {
       return { mode: 'custom', customPx: clampCustomPx(customPx) };
@@ -68,7 +106,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
     const list = entries.map(([, emote]) => emote);
     setExporting(true);
     try {
-      await exportForSlack(list, buildResolutionConfig());
+      await exportForSlack(list, buildResolutionConfig(), buildNamingConfig());
       setSlackModalOpen(false);
       setExportMenuOpen(false);
     } catch (err) {
@@ -249,94 +287,201 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
               onClick={(e) => e.stopPropagation()}
             >
               <h2 id="res-modal-title" class="res-modal-title">
-                Export resolution
+                Export to Slack
               </h2>
               <p class="res-modal-meta">
                 {resizableCount} of {count} emote{count !== 1 ? 's' : ''} support resizing
               </p>
 
-              <fieldset class="res-fieldset">
-                <legend class="res-legend">Image size</legend>
-
-                <label class="res-radio-row">
-                  <input
-                    type="radio"
-                    name="res-mode"
-                    checked={resolutionMode === 'thumbnail'}
-                    onChange={() => setResolutionMode('thumbnail')}
+              <div class="res-tabs">
+                <div
+                  role="tablist"
+                  class="res-tablist"
+                  aria-label="Export options sections"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    id="slack-tab-image"
+                    class="res-tab"
+                    aria-selected={slackExportTab === 'image'}
+                    aria-controls="slack-panel-image"
+                    tabIndex={slackExportTab === 'image' ? 0 : -1}
                     disabled={exporting}
-                  />
-                  <span class="res-radio-body">
-                    <span class="res-radio-label">Thumbnail size</span>
-                    <span class="res-radio-hint">(~90px, as displayed)</span>
-                  </span>
-                </label>
-
-                <label class="res-radio-row">
-                  <input
-                    type="radio"
-                    name="res-mode"
-                    checked={resolutionMode === 'original'}
-                    onChange={() => setResolutionMode('original')}
+                    onClick={() => setSlackExportTab('image')}
+                  >
+                    Image size
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    id="slack-tab-naming"
+                    class="res-tab"
+                    aria-selected={slackExportTab === 'naming'}
+                    aria-controls="slack-panel-naming"
+                    tabIndex={slackExportTab === 'naming' ? 0 : -1}
                     disabled={exporting}
-                  />
-                  <span class="res-radio-body">
-                    <span class="res-radio-label">Original size</span>
-                    <span class="res-radio-hint">(full resolution)</span>
-                  </span>
-                </label>
+                    onClick={() => setSlackExportTab('naming')}
+                  >
+                    Naming format
+                  </button>
+                </div>
 
-                <label class="res-radio-row">
-                  <input
-                    type="radio"
-                    name="res-mode"
-                    checked={resolutionMode === 'custom'}
-                    onChange={() => setResolutionMode('custom')}
-                    disabled={exporting}
-                  />
-                  <span class="res-radio-body">
-                    <span class="res-radio-label">Custom size</span>
-                    <span class="res-radio-hint">(thumb URLs only, max {CUSTOM_PX_MAX}px)</span>
-                  </span>
-                </label>
+                <div
+                  id="slack-panel-image"
+                  role="tabpanel"
+                  class="res-tabpanel"
+                  aria-labelledby="slack-tab-image"
+                  hidden={slackExportTab !== 'image'}
+                >
+                  <fieldset class="res-fieldset">
+                    <legend class="res-legend">Image size</legend>
 
-                {resolutionMode === 'custom' && (
-                  <div class="res-custom-block">
-                    <div class="res-custom-row">
+                    <label class="res-radio-row">
                       <input
-                        type="range"
-                        class="res-slider"
-                        min={1}
-                        max={CUSTOM_PX_MAX}
-                        step={1}
-                        value={clampCustomPx(customPx)}
+                        type="radio"
+                        name="res-mode"
+                        checked={resolutionMode === 'thumbnail'}
+                        onChange={() => setResolutionMode('thumbnail')}
                         disabled={exporting}
-                        onInput={(e) =>
-                          setCustomPx(clampCustomPx(Number((e.target as HTMLInputElement).value)))
-                        }
                       />
+                      <span class="res-radio-body">
+                        <span class="res-radio-label">Thumbnail size</span>
+                        <span class="res-radio-hint">(~90px, as displayed)</span>
+                      </span>
+                    </label>
+
+                    <label class="res-radio-row">
                       <input
-                        type="number"
-                        class="res-number"
-                        min={1}
-                        max={CUSTOM_PX_MAX}
-                        step={1}
-                        value={customPx}
+                        type="radio"
+                        name="res-mode"
+                        checked={resolutionMode === 'original'}
+                        onChange={() => setResolutionMode('original')}
                         disabled={exporting}
-                        onInput={(e) => {
-                          const v = Number((e.target as HTMLInputElement).value);
-                          if (Number.isFinite(v)) setCustomPx(v);
-                        }}
-                        onBlur={() => setCustomPx(clampCustomPx(customPx))}
                       />
-                      <span class="res-px-suffix">px</span>
+                      <span class="res-radio-body">
+                        <span class="res-radio-label">Original size</span>
+                        <span class="res-radio-hint">(full resolution)</span>
+                      </span>
+                    </label>
+
+                    <label class="res-radio-row">
+                      <input
+                        type="radio"
+                        name="res-mode"
+                        checked={resolutionMode === 'custom'}
+                        onChange={() => setResolutionMode('custom')}
+                        disabled={exporting}
+                      />
+                      <span class="res-radio-body">
+                        <span class="res-radio-label">Custom size</span>
+                        <span class="res-radio-hint">(thumb URLs only, max {CUSTOM_PX_MAX}px)</span>
+                      </span>
+                    </label>
+
+                    {resolutionMode === 'custom' && (
+                      <div class="res-custom-block">
+                        <div class="res-custom-row">
+                          <input
+                            type="range"
+                            class="res-slider"
+                            min={1}
+                            max={CUSTOM_PX_MAX}
+                            step={1}
+                            value={clampCustomPx(customPx)}
+                            disabled={exporting}
+                            onInput={(e) =>
+                              setCustomPx(
+                                clampCustomPx(Number((e.target as HTMLInputElement).value)),
+                              )
+                            }
+                          />
+                          <input
+                            type="number"
+                            class="res-number"
+                            min={1}
+                            max={CUSTOM_PX_MAX}
+                            step={1}
+                            value={customPx}
+                            disabled={exporting}
+                            onInput={(e) => {
+                              const v = Number((e.target as HTMLInputElement).value);
+                              if (Number.isFinite(v)) setCustomPx(v);
+                            }}
+                            onBlur={() => setCustomPx(clampCustomPx(customPx))}
+                          />
+                          <span class="res-px-suffix">px</span>
+                        </div>
+                        <p class="res-fallback-note">
+                          Falls back to original if size exceeds the source image.
+                        </p>
+                      </div>
+                    )}
+                  </fieldset>
+                </div>
+
+                <div
+                  id="slack-panel-naming"
+                  role="tabpanel"
+                  class="res-tabpanel"
+                  aria-labelledby="slack-tab-naming"
+                  hidden={slackExportTab !== 'naming'}
+                >
+                  <fieldset class="res-fieldset">
+                    <legend class="res-legend">Naming format</legend>
+
+                    <div class="res-separator-block">
+                      <label class="res-naming-prefix-label" htmlFor="naming-separator-input">
+                        <span class="res-naming-talent">Word separator</span>
+                        <input
+                          id="naming-separator-input"
+                          type="text"
+                          class="res-prefix-input"
+                          value={namingSeparator}
+                          disabled={exporting}
+                          onInput={(e) => setNamingSeparator((e.target as HTMLInputElement).value)}
+                          placeholder="-"
+                          autoComplete="off"
+                          spellcheck={false}
+                          aria-describedby="naming-separator-hint"
+                        />
+                      </label>
+                      <p id="naming-separator-hint" class="res-separator-hint">
+                        Any characters (e.g. <code class="res-sep-code">-</code>,{' '}
+                        <code class="res-sep-code">_</code>, <code class="res-sep-code">.</code>).
+                        Leave empty for no separator.
+                      </p>
                     </div>
-                    <p class="res-fallback-note">
-                      Falls back to original if size exceeds the source image.
-                    </p>
-                  </div>
-                )}
-              </fieldset>
+
+                    {prefixTalentNames.length > 0 && (
+                      <div class="res-naming-prefixes">
+                        <p class="res-naming-prefixes-intro">Prefix for filenames (per talent)</p>
+                        <ul class="res-naming-prefix-list">
+                          {prefixTalentNames.map((talent) => (
+                            <li key={talent} class="res-naming-prefix-item">
+                              <label class="res-naming-prefix-label">
+                                <span class="res-naming-talent">{talent}</span>
+                                <input
+                                  type="text"
+                                  class="res-prefix-input"
+                                  value={namingPrefixes[talent] ?? ''}
+                                  disabled={exporting}
+                                  onInput={(e) => {
+                                    const v = (e.target as HTMLInputElement).value;
+                                    setNamingPrefixes((p) => ({ ...p, [talent]: v }));
+                                  }}
+                                  autoComplete="off"
+                                  spellcheck={false}
+                                />
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </fieldset>
+                </div>
+              </div>
 
               <div class="res-modal-actions">
                 <button
@@ -686,10 +831,157 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           margin: 0 0 16px;
         }
 
+        .res-tabs {
+          margin-bottom: 4px;
+        }
+
+        .res-tablist {
+          display: flex;
+          gap: 2px;
+          margin-bottom: 14px;
+          border-bottom: 1px solid var(--border);
+          padding: 0;
+        }
+
+        .res-tab {
+          flex: 1;
+          margin: 0;
+          padding: 10px 8px;
+          border: none;
+          border-bottom: 2px solid transparent;
+          margin-bottom: -1px;
+          background: transparent;
+          color: var(--text-muted);
+          font-size: 13px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+          transition:
+            color var(--transition),
+            border-color var(--transition),
+            background var(--transition);
+        }
+
+        .res-tab:hover:not(:disabled) {
+          color: var(--text-primary);
+          background: rgba(255, 255, 255, 0.04);
+        }
+
+        .res-tab[aria-selected='true'] {
+          color: var(--accent);
+          border-bottom-color: var(--accent);
+        }
+
+        .res-tab:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+
+        .res-tab:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+        }
+
+        .res-tabpanel[hidden] {
+          display: none;
+        }
+
+        .res-tabpanel:not([hidden]) {
+          animation: res-tab-fade 0.15s ease;
+        }
+
+        @keyframes res-tab-fade {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
         .res-fieldset {
           border: none;
           margin: 0;
           padding: 0;
+        }
+
+        .res-separator-block {
+          margin-bottom: 4px;
+        }
+
+        .res-separator-hint {
+          font-size: 11px;
+          color: var(--text-muted);
+          margin: 8px 0 0;
+          line-height: 1.45;
+        }
+
+        .res-sep-code {
+          font-family: ui-monospace, monospace;
+          font-size: 10px;
+          padding: 1px 4px;
+          border-radius: 3px;
+          background: rgba(0, 0, 0, 0.25);
+          color: var(--text-secondary);
+        }
+
+        .res-naming-prefixes {
+          margin-top: 12px;
+        }
+
+        .res-naming-prefixes-intro {
+          font-size: 12px;
+          color: var(--text-secondary);
+          margin: 0 0 8px;
+        }
+
+        .res-naming-prefix-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          max-height: 200px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .res-naming-prefix-item {
+          margin: 0;
+        }
+
+        .res-naming-prefix-label {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .res-naming-talent {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--text-secondary);
+          line-height: 1.3;
+        }
+
+        .res-prefix-input {
+          width: 100%;
+          padding: 8px 10px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: var(--bg-base);
+          color: var(--text-primary);
+          font-size: 13px;
+          box-sizing: border-box;
+        }
+
+        .res-prefix-input:focus {
+          outline: none;
+          border-color: var(--accent);
+        }
+
+        .res-prefix-input:disabled {
+          opacity: 0.55;
         }
 
         .res-legend {

@@ -3,23 +3,80 @@ export function stripEmoteDelimiters(raw: string): string {
   return raw.replace(/^:\s*/, '').replace(/\s*:$/, '').trim();
 }
 
-/** Split PascalCase / camelCase (handles acronyms like SPIN -> spin). */
-export function splitCamelCaseWords(s: string): string {
-  return s
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2');
+export interface NamingConfig {
+  separator: string;
+  prefixes: Record<string, string>;
 }
 
-/** Default: lowercase, non-alphanumeric -> single hyphen, trim hyphens */
-export function defaultTransform(inner: string): string {
-  return inner
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+export interface TalentTransformConfig {
+  defaultPrefix: string;
+  transform: (inner: string, separator: string, prefix: string) => string;
 }
-
-export type TalentTransform = (inner: string) => string;
 
 /** One exported object per talent file (spread into the registry). */
-export type TalentNamingExports = Record<string, TalentTransform>;
+export type TalentNamingExports = Record<string, TalentTransformConfig>;
+
+/** Escape a string for use inside a character class or as a literal in RegExp. */
+export function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Split PascalCase / camelCase (handles acronyms like SPIN -> spin). */
+export function splitCamelCaseWords(s: string, separator: string): string {
+  const sep = separator;
+  return s
+    .replace(/([a-z0-9])([A-Z])/g, `$1${sep}$2`)
+    .replace(/([A-Z]+)([A-Z][a-z])/g, `$1${sep}$2`);
+}
+
+/** Collapse repeated separators and trim leading/trailing. */
+export function normalizeSeparators(s: string, separator: string): string {
+  if (!separator) return s;
+  const esc = escapeRegExp(separator);
+  return s
+    .replace(new RegExp(`${esc}+`, 'g'), separator)
+    .replace(new RegExp(`^${esc}|${esc}$`, 'g'), '');
+}
+
+/** Default: lowercase, non-alphanumeric -> separator, collapse, trim */
+export function defaultTransform(inner: string, separator: string): string {
+  const sep = separator;
+  const lower = inner.toLowerCase();
+  if (!sep) {
+    return lower.replace(/[^a-z0-9]/g, '');
+  }
+  const esc = escapeRegExp(sep);
+  return lower
+    .replace(/[^a-z0-9]+/g, sep)
+    .replace(new RegExp(`${esc}+`, 'g'), sep)
+    .replace(new RegExp(`^${esc}|${esc}$`, 'g'), '');
+}
+
+/** Final pass after a talent transform: keep only [a-z0-9] and literal separator (any length). */
+export function sanitizeSlug(base: string, separator: string): string {
+  if (!separator) {
+    const out = base.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return out || 'emote';
+  }
+  const sep = separator;
+  const lower = base.toLowerCase();
+  let out = '';
+  for (let i = 0; i < lower.length; ) {
+    if (lower.startsWith(sep, i)) {
+      out += sep;
+      i += sep.length;
+      continue;
+    }
+    const c = lower[i];
+    if (/[a-z0-9]/.test(c)) {
+      out += c;
+      i += 1;
+      continue;
+    }
+    i += 1;
+  }
+  const esc = escapeRegExp(sep);
+  out = out.replace(new RegExp(`(?:${esc})+`, 'g'), sep);
+  out = out.replace(new RegExp(`^${esc}|${esc}$`, 'g'), '');
+  return out || 'emote';
+}

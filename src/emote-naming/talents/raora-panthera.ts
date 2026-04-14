@@ -1,9 +1,13 @@
-import type { TalentNamingExports } from '../shared';
-
-const RAO_PREFIX = 'rao-';
+import { normalizeSeparators, type TalentNamingExports } from '../shared';
 
 export default {
-  'Raora Panthera': (inner: string): string => {
-    return (RAO_PREFIX + inner).toLowerCase().replace(/-+/g, '-').replace(/^-|-$/g, '');
+  'Raora Panthera': {
+    defaultPrefix: 'rao',
+    transform(inner: string, separator: string, prefix: string): string {
+      const p = prefix.toLowerCase();
+      const body = inner.toLowerCase();
+      const joined = separator ? `${p}${separator}${body}` : `${p}${body}`;
+      return normalizeSeparators(joined, separator);
+    },
   },
 } satisfies TalentNamingExports;

@@ -1,0 +1,64 @@
+---
+description: Guidelines for naming emotes via talent-specific transform files
+globs: src/emote-naming/**/*.ts
+alwaysApply: false
+---
+
+# Emote Naming Conventions
+
+## Pipeline Overview
+
+Raw emote names from JSON files in `public/emotes/` (e.g. `": CeCeLaugh:"`) are converted to Slack-style names (e.g. `cece-laugh`) via:
+
+1. `stripEmoteDelimiters` — removes `": "` / `" :"` wrappers
+2. Talent transform (if registered) or `defaultTransform(inner, separator)` — produces the base name
+3. `sanitizeSlug` — keeps only `[a-z0-9]` plus the chosen separator, collapses/trims repeated separators
+
+Export uses `toSlackName(talent, raw, naming?)` where `NamingConfig` supplies `separator` and per-talent `prefixes` from the Slack export modal.
+
+## Adding a New Talent Transform
+
+1. Create `src/emote-naming/talents/<first-last>.ts` (kebab-case filename)
+2. Export a default object satisfying `TalentNamingExports`:
+
+```typescript
+import type { TalentNamingExports } from '../shared';
+
+export default {
+  'Talent Full Name': {
+    defaultPrefix: 'short-prefix',
+    transform(inner: string, separator: string, prefix: string): string {
+      // use separator and prefix in output; return a rough slug (sanitizeSlug runs after)
+    },
+  },
+} satisfies TalentNamingExports;
+```
+
+3. Register it in `src/emote-naming/talents/index.ts`:
+
+```typescript
+import talentName from './talent-name';
+
+export const talentTransforms: Record<string, TalentTransformConfig> = {
+  ...talentName,
+  // ...existing transforms
+};
+```
+
+## Transform Conventions
+
+- The key **must** exactly match the talent's name in the emote JSON (e.g. `"Gigi Murin"`).
+- The `inner` parameter is the emote name after stripping delimiters (e.g. `"CeCeLaugh"`).
+- `defaultPrefix` pre-fills the export modal; users may override the prefix string.
+- Use `splitCamelCaseWords(s, separator)` when emote names use PascalCase/camelCase.
+- Build EXACT maps / PREFIXES from `(separator, prefix)` so exports respect modal choices.
+- Use `normalizeSeparators` / `sanitizeSlug` patterns from `../shared` where helpful.
+
+## Examples
+
+| Talent | Raw emote | inner | Output (defaults) |
+|---|---|---|---|
+| Gigi Murin | `": grem:"` | `grem` | `gigi-grem` (exact) |
+| Gigi Murin | `": gigihappy:"` | `gigihappy` | `gigi-happy` (prefix) |
+| Raora Panthera | `": bonk:"` | `bonk` | `rao-bonk` |
+| Cecilia Immergreen | `": CeCeLaugh:"` | `CeCeLaugh` | `cece-laugh` |
