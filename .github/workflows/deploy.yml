@@ -47,6 +47,8 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
+      - name: Fetch emotes
+        run: pnpm fetch-emotes -o public/emotes
       - name: Build
         run: pnpm build
       - name: Setup Pages
