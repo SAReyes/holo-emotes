@@ -1,11 +1,23 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import Layout from '../layouts/Layout.astro';
+import EmoteBrowser from '../components/EmoteBrowser';
+import type { BranchData, GenerationMap } from '../types';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const emotesDir = join(process.cwd(), 'public', 'emotes');
+const files = readdirSync(emotesDir).filter((f) => f.endsWith('.json'));
+
+const branches: BranchData[] = files
+  .map((file) => {
+    const raw = readFileSync(join(emotesDir, file), 'utf-8');
+    const generations = JSON.parse(raw) as GenerationMap;
+    const name = file.replace(/\.json$/, '');
+    return { name, generations };
+  })
+  .sort((a, b) => a.name.localeCompare(b.name));
 ---
 
 <Layout>
-	<Welcome />
+  <EmoteBrowser client:load data={branches} />
 </Layout>
