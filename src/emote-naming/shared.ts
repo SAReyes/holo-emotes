@@ -29,6 +29,17 @@ export function splitCamelCaseWords(s: string, separator: string): string {
     .replace(/([A-Z]+)([A-Z][a-z])/g, `$1${sep}$2`);
 }
 
+/** Join non-empty parts with the separator (or concatenate when it is empty). */
+export function joinParts(separator: string, ...parts: string[]): string {
+  const filtered = parts.filter((x) => x.length > 0);
+  return filtered.join(separator);
+}
+
+/** Remove a leading word (case-insensitive) such as the talent's own name: "shioriComfy" -> "Comfy". */
+export function stripLeadingWord(s: string, word: string): string {
+  return s.toLowerCase().startsWith(word.toLowerCase()) ? s.slice(word.length) : s;
+}
+
 /** Collapse repeated separators and trim leading/trailing. */
 export function normalizeSeparators(s: string, separator: string): string {
   if (!separator) return s;

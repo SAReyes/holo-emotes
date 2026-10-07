@@ -1,10 +1,4 @@
-import { type TalentNamingExports } from '../shared';
-
-function joinParts(separator: string, ...parts: string[]): string {
-  const filtered = parts.filter((x) => x.length > 0);
-  if (!separator) return filtered.join('');
-  return filtered.join(separator);
-}
+import { joinParts, type TalentNamingExports } from '../shared';
 
 function buildExact(separator: string, prefix: string): Record<string, string> {
   const p = prefix.toLowerCase();
