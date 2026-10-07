@@ -32,63 +32,65 @@ export default function TalentSection({
 }: Props) {
   const count = Object.keys(emotes).length;
 
-  function handleSelectToggle(e: MouseEvent) {
-    e.stopPropagation();
+  function handleSelectToggle() {
     if (isFullySelected) onDeselectAll();
     else onSelectAll();
   }
 
   return (
     <div class="talent-section">
-      <button
-        class="talent-header"
-        onClick={onToggle}
-        aria-expanded={expanded}
-      >
-        <svg
-          class={`chevron ${expanded ? 'open' : ''}`}
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-        <span class="talent-name-row">
-          <span class="talent-name">{talent}</span>
-          {!hasTransform && (
-            <span
-              class="talent-naming-warn"
-              role="img"
-              aria-label="Default Slack naming: custom transform not configured for this talent"
-              title="Custom emote naming not configured — Slack export uses the default transform"
-            >
-              <svg
-                class="talent-naming-warn-icon"
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.25"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              Default naming
-            </span>
-          )}
-        </span>
-        <span class="talent-count">{count} emote{count !== 1 ? 's' : ''}</span>
+      <div class="talent-header">
         <button
+          class="talent-toggle"
+          onClick={onToggle}
+          aria-expanded={expanded}
+        >
+          <svg
+            class={`chevron ${expanded ? 'open' : ''}`}
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+          <span class="talent-name-row">
+            <span class="talent-name">{talent}</span>
+            {!hasTransform && (
+              <span
+                class="talent-naming-warn"
+                role="img"
+                aria-label="Default Slack naming: custom transform not configured for this talent"
+                title="Custom emote naming not configured — Slack export uses the default transform"
+              >
+                <svg
+                  class="talent-naming-warn-icon"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.25"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Default naming
+              </span>
+            )}
+          </span>
+          <span class="talent-count">{count} emote{count !== 1 ? 's' : ''}</span>
+        </button>
+        <button
+          type="button"
           class={`select-all-btn ${isFullySelected ? 'deselect' : ''}`}
           onClick={handleSelectToggle}
           title={isFullySelected ? 'Deselect all from this talent' : 'Select all from this talent'}
@@ -110,7 +112,7 @@ export default function TalentSection({
             </>
           )}
         </button>
-      </button>
+      </div>
 
       {expanded && (
         <div class="talent-body">
@@ -134,16 +136,11 @@ export default function TalentSection({
         }
 
         .talent-header {
-          width: 100%;
           display: flex;
           align-items: center;
           gap: 7px;
-          padding: 8px 10px;
-          background: none;
-          border: none;
+          padding: 0 10px 0 0;
           color: var(--text-secondary);
-          text-align: left;
-          cursor: pointer;
           transition: background var(--transition), color var(--transition);
         }
 
@@ -152,7 +149,22 @@ export default function TalentSection({
           color: var(--text-primary);
         }
 
-        .talent-header[aria-expanded="true"] {
+        .talent-toggle {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          padding: 8px 10px;
+          background: none;
+          border: none;
+          color: inherit;
+          font: inherit;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .talent-toggle[aria-expanded="true"] {
           color: var(--text-primary);
         }
 
