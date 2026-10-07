@@ -25,9 +25,10 @@ Tool versions are pinned in `.prototools` (Node 22, pnpm 10). Use pnpm.
 
 `public/emotes/` is gitignored and generated. `src/pages/index.astro` reads every
 `*.json` in it at build time, so a fresh clone fails to build until the fetch
-script has run. There are no test files yet; `pnpm test` exits non-zero until the
-first `*.test.ts` lands. When you add logic to `src/emote-naming/` or
-`src/export.ts`, add the first test file next to it.
+script has run. Tests live next to the code they cover (`src/**/*.test.ts`)
+and run in Node without a browser; `src/export.test.ts` shows how to stub
+`fetch` and the download anchor. When you add logic to `src/emote-naming/` or
+`src/export.ts`, extend those files with real emote names from the fetched JSON.
 
 ## Layout
 
@@ -67,7 +68,7 @@ Naming and export helpers stay pure so they can be tested without a browser.
 Before reporting a change as finished:
 
 1. `pnpm build` succeeds with emotes fetched.
-2. `pnpm test` passes (once tests exist).
+2. `pnpm test` passes.
 3. For UI changes, load `pnpm dev` and exercise the changed flow yourself.
 4. For naming changes, show a before/after table of real emote names from the
    fetched JSON, not invented examples.
