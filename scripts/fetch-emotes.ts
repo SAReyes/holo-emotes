@@ -11,6 +11,11 @@ type TalentMap     = Record<string, EmoteMap>;     // talent name → emotes
 type GenerationMap = Record<string, TalentMap>;    // generation name → talents
 type BranchMap     = Record<string, GenerationMap>; // branch name → generations
 
+/** Section headings come back HTML-escaped (e.g. "Fuwawa &amp; Mococo"); decode to plain text. */
+function sectionHeading(line: string): string {
+  return parseHtml(line).textContent.trim();
+}
+
 // ---------------------------------------------------------------------------
 // API
 // ---------------------------------------------------------------------------
@@ -113,7 +118,7 @@ async function buildBranchData(pageTitle: string): Promise<GenerationMap> {
   let currentGeneration: GenerationPlan | null = null;
 
   for (const s of sectionsData.parse.sections) {
-    const line = s.line.trim();
+    const line = sectionHeading(s.line);
     const level = parseInt(s.level, 10);
 
     if (!line || !s.index || line === "Beginning") continue;
