@@ -1,3 +1,5 @@
+import { toRomaji } from 'wanakana';
+
 export function stripEmoteDelimiters(raw: string): string {
   return raw.replace(/^:\s*/, '').replace(/\s*:$/, '').trim();
 }
@@ -85,4 +87,13 @@ export function sanitizeSlug(base: string, separator: string): string {
 
 export function splitWords(rest: string, separator: string, split: Record<string, string[]> = {}): string[] {
   return split[rest.toLowerCase()] ?? [splitCamelCaseWords(rest, separator).toLowerCase()];
+}
+
+export function romanize(inner: string, separator: string, readings: Record<string, string> = {}): string {
+  const keys = Object.keys(readings).sort((a, b) => b.length - a.length);
+  let spaced = inner;
+  for (const key of keys) {
+    spaced = spaced.split(key).join(` ${readings[key]} `);
+  }
+  return defaultTransform(toRomaji(spaced), separator);
 }

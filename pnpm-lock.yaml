@@ -20,6 +20,9 @@ importers:
       preact:
         specifier: ^10.29.1
         version: 10.29.1
+      wanakana:
+        specifier: ^5.3.1
+        version: 5.3.1
     devDependencies:
       '@inquirer/prompts':
         specifier: ^8.4.1
@@ -2007,6 +2010,10 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  wanakana@5.3.1:
+    resolution: {integrity: sha512-OSDqupzTlzl2LGyqTdhcXcl6ezMiFhcUwLBP8YKaBIbMYW1wAwDvupw2T9G9oVaKT9RmaSpyTXjxddFPUcFFIw==}
+    engines: {node: '>=12'}
 
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
@@ -4267,6 +4274,8 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  wanakana@5.3.1: {}
 
   web-namespaces@2.0.1: {}
 

@@ -20,8 +20,9 @@ Raw names come from `public/emotes/*.json` wrapped in colons, for example
    separators, and trims them from both ends. If nothing is left the result is
    `emote`.
 
-Non-ASCII names, which most JP talents use, lose every character in step 3.
-`": ぬんぬん1:"` becomes `1`. This is a known gap, not a design choice.
+Step 3 drops every non-ASCII character, so a Japanese name only survives if
+its talent transform romanizes it first. `": ぬんぬん1:"` under a talent with
+no transform becomes `1`. See [Japanese names](#japanese-names).
 
 ## Config from the export modal
 
@@ -52,6 +53,7 @@ All in `src/emote-naming/shared.ts`. Each is pure.
 | `defaultTransform(inner, sep)` | Lowercase, non-alphanumerics to separator, collapse, trim. |
 | `sanitizeSlug(base, sep)` | Final pass. Keeps `[a-z0-9]` and the literal separator, which may be longer than one character. |
 | `splitWords(rest, sep, split?)` | Looks `rest` up in a `SPLIT` table first, otherwise splits camelCase. The common tail of most talent transforms. |
+| `romanize(inner, sep, readings?)` | Replaces each `READINGS` key with its romaji, longest key first, then converts the remaining kana with `wanakana` and runs `defaultTransform`. The common tail of JP talent transforms. |
 
 ## Talent rules
 
@@ -68,6 +70,7 @@ map to `left` and `right`.
 
 | Talent | Prefix | Rules beyond the common shape |
 | --- | --- | --- |
+| AZKi | `azki` | No camel splitting, because `AZrium` and `AZhand` would split at the `Z`. Prefix plus lowercase. `SPLIT` covers `hitext` and `azhand`. `azki` is stripped as a self-prefix, so the emote named `azki` becomes just `azki` and `AZKi1` becomes `azki-1`. |
 | Cecilia Immergreen | `cece` | A leading `CeCe` is replaced by the prefix. The rest is camel-split. |
 | Ceres Fauna | `fauna` | Common shape, no self-prefix to strip. `SPLIT` covers `hugsnail`, `pinklight`, `greenlight`, `nemusmug`. |
 | Elizabeth Rose Bloodflame | `liz` | No camel splitting: names are single words. `SPLIT` covers compounds such as `bluestick`, `vewynoice`, `warcry`, and the `eyel` / `eyer` pair. |
@@ -75,6 +78,7 @@ map to `left` and `right`.
 | Gawr Gura | `gura` | The wiki abbreviates her name as `Gura`, `Gur`, or `Gu`. `gura` and `gur` are stripped as self-prefixes. `GuDuh` and `GuYum` are handled in `SPLIT` instead, because `guWAT` is a different emote from `GuraWat` and must stay whole. |
 | Gigi Murin | `gigi` | Exact table for `grem`, `frewup`, `stopfight`. A leading `gigi` becomes the prefix. Leading `popo` and `grem` become sub-prefixes, as in `gigi-popo-cheer`. Anything else is prefix plus the whole name. |
 | Hakos Baelz | `bae` | Names mix lowercase and SHOUTED tokens. `SPLIT` covers the ones that read as several words, such as `squeakyay` and `whatadeal`. |
+| Hoshimachi Suisei | `suisei` | Single lowercase words, prefix plus lowercase. Camel splitting separates the `bikkuriB` / `bikkuriY` pair. `suisei` is a self-prefix, so that emote becomes just `suisei`. |
 | IRyS | `irys` | Strips `irys`. `SPLIT` covers the `wing`, `bloom`, and `gloom` left and right pairs plus `bloompat`, `gloompat`, `socool`. |
 | Koseki Bijou | `bijou` | Strips `bijou`. `pebble` is a sub-prefix for the fan mascot, so `bijouPebblecry` becomes `bijou-pebble-cry`. `SPLIT` covers `swirlyeyes`. |
 | Mori Calliope | `calli` | `RipR`, `RipI`, `RipP` spell RIP across three emotes and keep the letter as its own word. Her name is dropped wherever it appears, so `happymori` becomes `happy` and `calliopog` becomes `pog`, because the prefix already carries it. |
@@ -83,13 +87,42 @@ map to `left` and `right`.
 | Ninomae Ina'nis | `ina` | No camel splitting, because `10Q`, `OxO`, and `LOVE4EVER` are single words. `SPLIT` covers `rightglow`, `leftglow`, `gonext`. |
 | Ouro Kronii | `kronii` | Most names are `kro` plus a word. Puns that only work as one word stay whole: `krosrprise`, `kronichiwa`, `kronfused`, `kropium`, `yukkronii`. `kronie` (the fans) and `boros` (the snake) are sub-prefixes, like Bijou's `pebble`. `kronii` and `kro` are self-prefixes. |
 | Raora Panthera | `rao` | Prefix plus the lowercased name. Nothing to split. |
+| Roboco | `rbc` | Every name is `rbc` plus CamelCase. Strip, camel-split, then `romanize` each word for the three Japanese names: `充電中`, `ねこたち`, and the long-vowel marks in `rbc3ーー`. `SPLIT` covers `thankyou`, `highspec`, `minus100hp`. |
+| Sakura Miko | `miko` | Every name is `miko` plus CamelCase. Strip and camel-split. `SPLIT` separates `35p` (the fan name) and her own name inside compounds: `doya35p`, `mikopipipi`, `nakimiko`, `fxmiko`, `penmikop`, `kouhomikop`. |
 | Shiori Novella | `shiori` | Strips `shiori`, then camel-splits. `SPLIT` covers `novelbonk`, `giftlove`, `facepaw`. |
+| Tokino Sora | `sora` | Japanese names. Strips a leading `そら`, then `romanize` with a `READINGS` table. Katakana loanwords go back to English (`ソーダ` to `soda`, `ナイス` to `nice`, `ペンラ` to `penlight`) and `ちゃん` is always its own word, except inside `赤ちゃん`, which is one word. |
 | Takanashi Kiara | `kiara` | Names are short codes such as `mgn`, `fpm`, `YLS`, `1010`. Prefix plus lowercase. |
 | Watson Amelia | `ame` | Every name is `ame` plus CamelCase, as in `ameGatorIdol` and `ameHic1`. Strip and camel-split. |
 
 Talents without a transform get `defaultTransform` and no prefix. Names from
-different talents can then collide in Slack, which is why the EN branch
-transforms always add one.
+different talents can then collide in Slack, which is why the EN and JP 0th
+generation transforms always add one.
+
+## Japanese names
+
+`wanakana` converts hiragana and katakana to Hepburn romaji and leaves
+everything else alone. It knows nothing about kanji, and Japanese has no
+spaces, so every JP transform pairs it with a `READINGS` table in the talent
+file: a map from a Japanese substring to its romaji, with a space wherever a
+word boundary belongs. `romanize` applies the longest keys first, which is
+why `赤ちゃん` can map to `akachan` while a bare `ちゃん` maps to `chan`.
+
+What goes in the table:
+
+- Every word that contains kanji, as a whole word with its kana tail, so the
+  reading is right in context: `止まらねえぞ` to `tomaranee zo`.
+- Katakana loanwords, mapped back to the English word they came from, because
+  `sutanpu` reads worse in Slack than `stamp`.
+- Kana suffixes that should be their own word, such as `ちゃん`.
+- Long-vowel spellings where the raw romaji looks wrong: `ジトー` to `jito`.
+
+Everything else, which is most of the names, goes through `wanakana`
+untouched. Small `っ` doubles the next consonant (`そっか` to `sokka`) and a
+trailing `っ` or `ー` disappears (`きゅっ` to `kyu`, `やったー` to `yatta`).
+
+A full morphological dictionary (kuroshiro, kuromoji) would read kanji
+without a table, but it is about 20 MB and asynchronous, and naming runs
+synchronously in the browser at export time. The table is the trade.
 
 ## Adding a talent
 
@@ -112,6 +145,9 @@ transforms always add one.
    } satisfies TalentNamingExports;
    ```
 
+   For a JP talent, replace `splitWords` with `romanize(rest, separator, READINGS)`
+   and strip the talent's name in kana. `src/emote-naming/talents/tokino-sora.ts`
+   is the model.
 3. Spread it into `talentTransforms` in `src/emote-naming/talents/index.ts`.
 4. Add a row to the table above with the prefix and any rule that is not the
    common shape. Any choice that would have tempted you to write a comment
@@ -160,4 +196,14 @@ fetched JSON.
 | Raora Panthera | `: LETHERCOOK:` | `rao-lethercook` |
 | Shiori Novella | `: shioriNovelbonk:` | `shiori-novel-bonk` |
 | Takanashi Kiara | `: YLS:` | `kiara-yls` |
+| Roboco | `: rbc充電中:` | `rbc-juudenchuu` |
+| Roboco | `: rbcHighspec:` | `rbc-high-spec` |
+| AZKi | `: AZKi1:` | `azki-1` |
+| Sakura Miko | `: mikoDoya35P:` | `miko-doya-35p` |
+| Hoshimachi Suisei | `: bikkuriB:` | `suisei-bikkuri-b` |
+| Tokino Sora | `: ぬんぬん1:` | `sora-nunnun1` |
+| Tokino Sora | `: 止まらねえぞ:` | `sora-tomaranee-zo` |
+| Tokino Sora | `: ミニソーダちゃん:` | `sora-mini-soda-chan` |
+| Tokino Sora | `: あん肝ペンラ青:` | `sora-ankimo-penlight-ao` |
+| Tokino Sora | `: そらザウルス:` | `sora-saurus` |
 | Watson Amelia | `: ameGatorIdol:` | `ame-gator-idol` |

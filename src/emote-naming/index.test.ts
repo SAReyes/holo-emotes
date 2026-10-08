@@ -414,6 +414,143 @@ describe('Hakos Baelz transform', () => {
   });
 });
 
+describe('Tokino Sora transform', () => {
+  const talent = 'Tokino Sora';
+
+  it('romanizes kana names and keeps trailing digits', () => {
+    expect(toSlackName(talent, ': ぬんぬん1:')).toBe('sora-nunnun1');
+    expect(toSlackName(talent, ': いかないで:')).toBe('sora-ikanaide');
+    expect(toSlackName(talent, ': そっか:')).toBe('sora-sokka');
+    expect(toSlackName(talent, ': やったー:')).toBe('sora-yatta');
+    expect(toSlackName(talent, ': きゅっ:')).toBe('sora-kyu');
+    expect(toSlackName(talent, ': はい1:')).toBe('sora-hai1');
+    expect(toSlackName(talent, ': Hi1:')).toBe('sora-hi1');
+  });
+
+  it('reads kanji and splits words through the readings table', () => {
+    expect(toSlackName(talent, ': 止まらねえぞ:')).toBe('sora-tomaranee-zo');
+    expect(toSlackName(talent, ': 泣いちゃう:')).toBe('sora-naichau');
+    expect(toSlackName(talent, ': 新ぬんぬん:')).toBe('sora-shin-nunnun');
+    expect(toSlackName(talent, ': ああ迷子:')).toBe('sora-aa-maigo');
+    expect(toSlackName(talent, ': あん肝ペンラ青:')).toBe('sora-ankimo-penlight-ao');
+    expect(toSlackName(talent, ': 赤ちゃん:')).toBe('sora-akachan');
+    expect(toSlackName(talent, ': ぬんぬんちゃん:')).toBe('sora-nunnun-chan');
+    expect(toSlackName(talent, ': かさの絵文字:')).toBe('sora-kasa-no-emoji');
+    expect(toSlackName(talent, ': じゃあ敵だね:')).toBe('sora-jaa-teki-da-ne');
+    expect(toSlackName(talent, ': Imびっくり:')).toBe('sora-im-bikkuri');
+  });
+
+  it('turns katakana loanwords back into English and strips her own name', () => {
+    expect(toSlackName(talent, ': ミニソーダちゃん:')).toBe('sora-mini-soda-chan');
+    expect(toSlackName(talent, ': スンスタンプ:')).toBe('sora-sun-stamp');
+    expect(toSlackName(talent, ': ナイス:')).toBe('sora-nice');
+    expect(toSlackName(talent, ': そらザウルス:')).toBe('sora-saurus');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': ミニソーダちゃん:', { separator: '_', prefixes: {} })).toBe('sora_mini_soda_chan');
+    expect(toSlackName(talent, ': そらザウルス:', { separator: '', prefixes: {} })).toBe('sorasaurus');
+    expect(toSlackName(talent, ': あん肝ペンラ青:', { separator: '-', prefixes: { [talent]: 'Tokino' } })).toBe('tokino-ankimo-penlight-ao');
+  });
+});
+
+describe('Roboco transform', () => {
+  const talent = 'Roboco';
+
+  it('strips rbc, camel-splits, and uses the split table', () => {
+    expect(toSlackName(talent, ': rbcHappiness:')).toBe('rbc-happiness');
+    expect(toSlackName(talent, ': rbcThankyou:')).toBe('rbc-thank-you');
+    expect(toSlackName(talent, ': rbcHighspec:')).toBe('rbc-high-spec');
+    expect(toSlackName(talent, ': rbcMinus100hp:')).toBe('rbc-minus-100hp');
+    expect(toSlackName(talent, ': rbcFAQ:')).toBe('rbc-faq');
+    expect(toSlackName(talent, ': rbc1ha:')).toBe('rbc-1ha');
+    expect(toSlackName(talent, ': rbc888:')).toBe('rbc-888');
+  });
+
+  it('romanizes the few Japanese names', () => {
+    expect(toSlackName(talent, ': rbc充電中:')).toBe('rbc-juudenchuu');
+    expect(toSlackName(talent, ': rbcねこたち:')).toBe('rbc-neko-tachi');
+    expect(toSlackName(talent, ': rbc3ーー:')).toBe('rbc-3-oo');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': rbcThankyou:', { separator: '_', prefixes: {} })).toBe('rbc_thank_you');
+    expect(toSlackName(talent, ': rbcねこたち:', { separator: '-', prefixes: { [talent]: 'roboco' } })).toBe('roboco-neko-tachi');
+  });
+});
+
+describe('AZKi transform', () => {
+  const talent = 'AZKi';
+
+  it('prefixes lowercase single words and splits the few compounds', () => {
+    expect(toSlackName(talent, ': clap:')).toBe('azki-clap');
+    expect(toSlackName(talent, ': Creating:')).toBe('azki-creating');
+    expect(toSlackName(talent, ': ICCM:')).toBe('azki-iccm');
+    expect(toSlackName(talent, ': AZrium:')).toBe('azki-azrium');
+    expect(toSlackName(talent, ': AZhand:')).toBe('azki-az-hand');
+    expect(toSlackName(talent, ': Hitext:')).toBe('azki-hi-text');
+  });
+
+  it('collapses her own name into the prefix', () => {
+    expect(toSlackName(talent, ': azki:')).toBe('azki');
+    expect(toSlackName(talent, ': AZKi1:')).toBe('azki-1');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': Hitext:', { separator: '_', prefixes: {} })).toBe('azki_hi_text');
+    expect(toSlackName(talent, ': AZKi1:', { separator: '-', prefixes: { [talent]: 'az' } })).toBe('az-1');
+  });
+});
+
+describe('Sakura Miko transform', () => {
+  const talent = 'Sakura Miko';
+
+  it('strips miko and camel-splits', () => {
+    expect(toSlackName(talent, ': mikoMiko:')).toBe('miko-miko');
+    expect(toSlackName(talent, ': mikoGurasan:')).toBe('miko-gurasan');
+    expect(toSlackName(talent, ': mikoHatena2:')).toBe('miko-hatena2');
+    expect(toSlackName(talent, ': mikoTaiyakimi:')).toBe('miko-taiyakimi');
+  });
+
+  it('separates 35p and her own name inside compounds', () => {
+    expect(toSlackName(talent, ': mikoDoya35P:')).toBe('miko-doya-35p');
+    expect(toSlackName(talent, ': mikoMiko35p:')).toBe('miko-miko-35p');
+    expect(toSlackName(talent, ': mikoGenkai35p:')).toBe('miko-genkai-35p');
+    expect(toSlackName(talent, ': mikoMikopipipi:')).toBe('miko-miko-pipipi');
+    expect(toSlackName(talent, ': mikoNakimiko:')).toBe('miko-naki-miko');
+    expect(toSlackName(talent, ': mikoFxmiko:')).toBe('miko-fx-miko');
+    expect(toSlackName(talent, ': mikoPenmikop:')).toBe('miko-pen-mikop');
+    expect(toSlackName(talent, ': mikoKouhomikop:')).toBe('miko-kouho-mikop');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': mikoDoya35P:', { separator: '_', prefixes: {} })).toBe('miko_doya_35p');
+    expect(toSlackName(talent, ': mikoKusa:', { separator: '-', prefixes: { [talent]: 'Mikochi' } })).toBe('mikochi-kusa');
+  });
+});
+
+describe('Hoshimachi Suisei transform', () => {
+  const talent = 'Hoshimachi Suisei';
+
+  it('prefixes lowercase single words and camel-splits the bikkuri pair', () => {
+    expect(toSlackName(talent, ': hosi:')).toBe('suisei-hosi');
+    expect(toSlackName(talent, ': kyoumo:')).toBe('suisei-kyoumo');
+    expect(toSlackName(talent, ': bikkuri:')).toBe('suisei-bikkuri');
+    expect(toSlackName(talent, ': bikkuriB:')).toBe('suisei-bikkuri-b');
+    expect(toSlackName(talent, ': bikkuriY:')).toBe('suisei-bikkuri-y');
+    expect(toSlackName(talent, ': awsl:')).toBe('suisei-awsl');
+  });
+
+  it('collapses her own name into the prefix', () => {
+    expect(toSlackName(talent, ': suisei:')).toBe('suisei');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': bikkuriB:', { separator: '_', prefixes: {} })).toBe('suisei_bikkuri_b');
+    expect(toSlackName(talent, ': tensai:', { separator: '-', prefixes: { [talent]: 'sui' } })).toBe('sui-tensai');
+  });
+});
+
 describe('registry helpers', () => {
   it('reports which talents have a transform', () => {
     expect(hasTalentTransform('Gigi Murin')).toBe(true);

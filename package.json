@@ -17,7 +17,8 @@
     "@astrojs/preact": "^5.1.1",
     "astro": "^6.1.4",
     "jszip": "^3.10.1",
-    "preact": "^10.29.1"
+    "preact": "^10.29.1",
+    "wanakana": "^5.3.1"
   },
   "devDependencies": {
     "@inquirer/prompts": "^8.4.1",
