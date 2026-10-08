@@ -91,3 +91,8 @@ export function sanitizeSlug(base: string, separator: string): string {
   out = out.replace(new RegExp(`^${esc}|${esc}$`, 'g'), '');
   return out || 'emote';
 }
+
+/** Words after the prefix: an explicit SPLIT entry wins, otherwise camelCase boundaries. */
+export function splitWords(rest: string, separator: string, split: Record<string, string[]> = {}): string[] {
+  return split[rest.toLowerCase()] ?? [splitCamelCaseWords(rest, separator).toLowerCase()];
+}
