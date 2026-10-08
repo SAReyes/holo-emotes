@@ -1,4 +1,5 @@
 import { createPortal } from 'preact/compat';
+import EmoteImg from './EmoteImg';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { SelectedEmote } from '../types';
 import {
@@ -136,13 +137,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         >
           <div class="preview-strip">
             {previewEmotes.map(([key, emote]) => (
-              <img
-                key={key}
-                src={emote.url}
-                alt={emote.name}
-                class="preview-img"
-                loading="lazy"
-              />
+              <EmoteImg key={key} url={emote.url} alt={emote.name} class="preview-img" loading="lazy" />
             ))}
             {count > 12 && (
               <span class="preview-more">+{count - 12}</span>
@@ -255,7 +250,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         <div class="expanded-grid">
           {entries.map(([key, emote]) => (
             <div key={key} class="sel-emote">
-              <img src={emote.url} alt={emote.name} class="sel-img" loading="lazy" />
+              <EmoteImg url={emote.url} alt={emote.name} class="sel-img" loading="lazy" />
               <button
                 class="sel-remove"
                 onClick={() => onRemove(key)}

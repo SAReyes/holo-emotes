@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import EmoteImg from './EmoteImg';
 import type { SelectedEmote } from '../types';
 
 interface Props {
@@ -58,13 +59,7 @@ export default function EmoteGrid({
             aria-pressed={selected}
           >
             <div class="emote-img-wrap">
-              <img
-                src={url}
-                alt={name}
-                loading="lazy"
-                decoding="async"
-                class="emote-img"
-              />
+              <EmoteImg url={url} alt={name} loading="lazy" class="emote-img" />
               {selected && (
                 <div class="selected-overlay">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -83,7 +78,7 @@ export default function EmoteGrid({
           class="emote-tooltip"
           style={`left: ${tooltip.x}px; top: ${tooltip.y}px;`}
         >
-          <img src={tooltip.url} alt={tooltip.name} class="tooltip-img" />
+          <EmoteImg url={tooltip.url} alt={tooltip.name} class="tooltip-img" />
           <span class="tooltip-name">{tooltip.name.replace(/^:\s*/, '').replace(/\s*:$/, '')}</span>
         </div>
       )}
