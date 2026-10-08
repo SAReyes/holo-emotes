@@ -1,6 +1,6 @@
-export type EmoteMap = Record<string, string>;       // emote name -> url
-export type TalentMap = Record<string, EmoteMap>;     // talent name -> emotes
-export type GenerationMap = Record<string, TalentMap>; // generation name -> talents
+export type EmoteMap = Record<string, string>;
+export type TalentMap = Record<string, EmoteMap>;
+export type GenerationMap = Record<string, TalentMap>;
 
 export interface BranchData {
   name: string;

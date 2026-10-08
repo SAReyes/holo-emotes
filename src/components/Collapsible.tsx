@@ -8,11 +8,6 @@ interface Props {
 
 const CLOSE_MS = 220;
 
-/**
- * Animates its children open and closed by height. Children mount when
- * opened and unmount once the closing transition has finished, so collapsed
- * sections cost nothing.
- */
 export default function Collapsible({ open, children }: Props) {
   const { mounted } = usePresence(open, CLOSE_MS);
 

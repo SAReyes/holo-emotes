@@ -1,6 +1,5 @@
 import { joinParts, type TalentNamingExports } from '../shared';
 
-/** Compound words the wiki writes as one token; everything else is prefix + word. */
 const SPLIT: Record<string, string[]> = {
   bluestick: ['blue', 'stick'],
   redstick: ['red', 'stick'],

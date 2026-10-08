@@ -2,14 +2,12 @@ import JSZip from 'jszip';
 import type { SelectedEmote } from './types';
 import { toSlackName, type NamingConfig } from './emote-naming';
 
-/** Wikitide / MediaWiki thumb URLs: .../thumb/<hash>/<file>/<N>px-<file> */
 const RESIZABLE_PATH = /^(.+)\/thumb\/(.+)\/\d+px-[^/]+$/;
 
 export type ResolutionMode = 'thumbnail' | 'original' | 'custom';
 
 export interface ResolutionConfig {
   mode: ResolutionMode;
-  /** Used when mode is 'custom'; clamped 1–512 when resolving */
   customPx?: number;
 }
 
@@ -24,9 +22,6 @@ export function isResizableUrl(urlString: string): boolean {
   }
 }
 
-/**
- * Strip /thumb/ and the trailing /<N>px-... segment to get the original asset URL.
- */
 export function toOriginalUrl(urlString: string): string {
   try {
     const u = new URL(urlString);
@@ -40,9 +35,6 @@ export function toOriginalUrl(urlString: string): string {
   }
 }
 
-/**
- * Replace the width in the thumb segment with customPx (only for resizable URLs).
- */
 export function toCustomUrl(urlString: string, px: number): string {
   if (!isResizableUrl(urlString)) return urlString;
   const clamped = clampCustomPx(px);
@@ -126,9 +118,6 @@ async function fetchEmoteWithOptionalFallback(
   return res.arrayBuffer();
 }
 
-/**
- * Build a ZIP of selected emotes with Slack-safe filenames and start download.
- */
 export async function exportForSlack(
   emotes: SelectedEmote[],
   resolution: ResolutionConfig = { mode: 'thumbnail' },

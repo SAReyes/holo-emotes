@@ -1,12 +1,7 @@
 import { joinParts, splitWords, stripLeadingWord, type TalentNamingExports } from '../shared';
 
-/** The wiki abbreviates her name as "GuraSmug" or "GurNya"; "GuDuh" / "GuYum" are handled in SPLIT. */
 const SELF = ['gura', 'gur'];
 
-/**
- * Keys are the remainder after the self prefix is stripped. L/R suffixes become
- * left/right. "guWAT" is a different emote from "GuraWat", so it stays whole.
- */
 const SPLIT: Record<string, string[]> = {
   guduh: ['duh'],
   guyum: ['yum'],

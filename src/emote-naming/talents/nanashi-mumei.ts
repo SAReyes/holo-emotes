@@ -1,6 +1,5 @@
 import { joinParts, splitWords, type TalentNamingExports } from '../shared';
 
-/** Lowercase compounds; camel splitting handles "colonSmile", "friendHap". L/R become left/right. */
 const SPLIT: Record<string, string[]> = {
   thumbsup: ['thumbs', 'up'],
   thisisfine: ['this', 'is', 'fine'],

@@ -47,12 +47,19 @@ and run in Node without a browser; `src/export.test.ts` shows how to stub
 - `src/components/`. Preact UI. `EmoteBrowser.tsx` owns all state (selection,
   filters, search); the other components are presentational.
 - `src/emote-naming/`. Pure functions that turn raw emote names into Slack
-  slugs. Per-talent overrides live in `talents/`. Conventions are documented in
-  `.cursor/rules/emote-naming.mdc`; follow that file when adding a talent.
+  slugs. Per-talent overrides live in `talents/`. `docs/emote-naming.md`
+  explains the pipeline, every talent's rules, and how to add one.
 - `src/export.ts`. URL resolution (thumbnail / original / custom px) and zip
   building. Pure except for the final download.
 - `test.sh`, `interactive.sh`. Older bash prototypes of the scraper. Reference
   only; the TypeScript script is the source of truth.
+- `docs/`. Reference material: how a module works and why it is shaped that
+  way. One file per topic. Today: `emote-naming.md`.
+- `.claude/skills/<name>/SKILL.md`. One per area of the code, holding the
+  reasons behind its shape and the procedure for changing it. `scraper`
+  covers `scripts/` and `src/emote-image.ts`, `mobile-first-ui` covers
+  `src/components/` and `src/layouts/`, `slack-export` covers `src/export.ts`.
+  Load the matching skill before editing that area.
 
 ## How to work here
 
@@ -67,6 +74,13 @@ comes out in terms of the types in `src/types.ts` or `src/emote-naming/shared.ts
 Encode rules in a table, map, or type rather than a chain of conditionals. The
 talent transform registry is the model: one object per talent, spread into one
 record, no `if (talent === ...)` anywhere.
+
+**No inline comments.** Code carries no comments, JSDoc included. Put the
+why in `docs/` if it is reference material, or in a skill under
+`.claude/skills/` if it is a procedure. If a line needs a comment to be
+understood, rename or restructure it, then record the reasoning in the doc
+that covers that module. When you touch a file that still has comments, move
+them out instead of adding to them.
 
 **Keep boundaries honest.** Parse and validate external data (wiki HTML, JSON on
 disk, user input in the export modal) at the edge, then trust the types inside.

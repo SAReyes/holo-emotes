@@ -10,8 +10,6 @@ import {
 } from './export';
 import type { SelectedEmote } from './types';
 
-// Real URLs from public/emotes/*.json. The wiki serves most emotes as
-// resizable thumbs and a few (Indonesia) as plain originals.
 const THUMB = 'https://static.wikitide.net/hololivewiki/thumb/d/db/Emote-gigi1.png/90px-Emote-gigi1.png';
 const ORIGINAL = 'https://static.wikitide.net/hololivewiki/d/db/Emote-gigi1.png';
 const PLAIN = 'https://static.wikitide.net/hololivewiki/4/41/Emote-risu1.png';
@@ -62,7 +60,6 @@ function emote(talent: string, name: string, url: string): SelectedEmote {
   return { branch: 'Hololive English', generation: 'Justice', talent, name, url };
 }
 
-/** Stub fetch, the DOM download anchor, and object URLs; return what was downloaded. */
 function stubBrowser(responder: (url: string) => Response) {
   const fetched: string[] = [];
   vi.stubGlobal(

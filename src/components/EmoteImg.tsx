@@ -7,7 +7,6 @@ interface Props {
   loading?: 'lazy' | 'eager';
 }
 
-/** Shows the self-hosted thumbnail and falls back to the wiki if it is missing. */
 export default function EmoteImg({ url, alt, class: className, loading }: Props) {
   const local = localThumbPath(url);
   return (

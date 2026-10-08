@@ -5,22 +5,14 @@ import { parse as parseHtml, type HTMLElement } from "node-html-parser";
 import { assertAllowed } from "./robots";
 import { localThumbPath, THUMBS_DIR } from "../src/emote-image";
 
-// Reads the rendered article pages under /wiki/. hololive.wiki's robots.txt
-// disallows /w/ (the API) and every ?action= URL, but not plain article pages.
-// Every request is checked against the live robots.txt first (see robots.ts).
 const BASE_URL = "https://hololive.wiki";
 const ROOT_PAGE = `${BASE_URL}/wiki/Membership_Emotes`;
 
-type EmoteMap      = Record<string, string>;       // emote name → url
-type TalentMap     = Record<string, EmoteMap>;     // talent name → emotes
-type GenerationMap = Record<string, TalentMap>;    // generation name → talents
-type BranchMap     = Record<string, GenerationMap>; // branch name → generations
+type EmoteMap      = Record<string, string>;
+type TalentMap     = Record<string, EmoteMap>;
+type GenerationMap = Record<string, TalentMap>;
+type BranchMap     = Record<string, GenerationMap>;
 
-// ---------------------------------------------------------------------------
-// Page fetching
-// ---------------------------------------------------------------------------
-
-/** Fetch an article and return its rendered body (the .mw-parser-output element). */
 async function fetchArticle(url: string): Promise<HTMLElement> {
   await assertAllowed(url);
   const res = await fetch(url);
@@ -30,14 +22,9 @@ async function fetchArticle(url: string): Promise<HTMLElement> {
   return body;
 }
 
-/** Heading text without the "[edit]" link; entities are decoded by the parser. */
 function headingText(h: HTMLElement): string {
   return (h.querySelector(".mw-headline") ?? h).text.trim();
 }
-
-// ---------------------------------------------------------------------------
-// Branch discovery
-// ---------------------------------------------------------------------------
 
 interface Branch {
   name: string;
@@ -62,11 +49,6 @@ async function fetchBranches(): Promise<Branch[]> {
   return results;
 }
 
-// ---------------------------------------------------------------------------
-// Branch data (generations → talents → emotes)
-// ---------------------------------------------------------------------------
-
-/** Walk headings and images in document order: h2 → generation, h3 → talent, img → emote. */
 async function buildBranchData(url: string): Promise<GenerationMap> {
   const body = await fetchArticle(url);
   const result: GenerationMap = {};
@@ -91,10 +73,6 @@ async function buildBranchData(url: string): Promise<GenerationMap> {
   return result;
 }
 
-// ---------------------------------------------------------------------------
-// Emote parsing
-// ---------------------------------------------------------------------------
-
 const SKIP_URL_FRAGMENTS = ["/static/", "spinner", "placeholder", "blank.gif", "pixel"];
 const SKIP_NAME_FRAGMENTS = ["loading", "placeholder", "sprite"];
 
@@ -102,7 +80,6 @@ function parseEmote(img: HTMLElement): { name: string; url: string } | null {
   const src = img.getAttribute("src") ?? "";
   if (!src) return null;
 
-  // Resolve protocol-relative (//...), absolute-path (/...), and full URLs
   let url: string;
   if (src.startsWith("//")) {
     url = "https:" + src;
@@ -123,19 +100,13 @@ function parseEmote(img: HTMLElement): { name: string; url: string } | null {
   let name = rawName.trim();
   if (!name || SKIP_NAME_FRAGMENTS.some((x) => name.toLowerCase().includes(x))) return null;
 
-  // Normalize: strip extension, replace underscores
   name = name.replace(/\.[A-Za-z0-9]{2,5}$/, "").replace(/_/g, " ").trim();
 
   return { name, url };
 }
 
-// ---------------------------------------------------------------------------
-// Thumbnail download (delta only)
-// ---------------------------------------------------------------------------
-
 const DOWNLOAD_CONCURRENCY = 6;
 
-/** Every image URL referenced by the branch data, mapped to its local file path. */
 function thumbTargets(result: BranchMap, outputPath: string): Map<string, string> {
   const targets = new Map<string, string>();
   for (const generations of Object.values(result)) {
@@ -168,7 +139,6 @@ function walkFiles(dir: string): string[] {
   });
 }
 
-/** Download thumbnails that are missing locally and delete ones no branch references any more. */
 async function syncThumbs(result: BranchMap, outputPath: string): Promise<void> {
   const targets = thumbTargets(result, outputPath);
   const missing = [...targets].filter(([, file]) => !existsSync(file));
@@ -195,10 +165,6 @@ async function syncThumbs(result: BranchMap, outputPath: string): Promise<void> 
     for (const f of orphans) console.error(`    ${relative(outputPath, f)}`);
   }
 }
-
-// ---------------------------------------------------------------------------
-// CLI
-// ---------------------------------------------------------------------------
 
 function parseArgs() {
   const args = process.argv.slice(2);

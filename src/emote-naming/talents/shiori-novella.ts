@@ -1,6 +1,5 @@
 import { joinParts, splitCamelCaseWords, stripLeadingWord, type TalentNamingExports } from '../shared';
 
-/** Compounds the wiki writes as one lowercase token after the shiori prefix. */
 const SPLIT: Record<string, string[]> = {
   novelbonk: ['novel', 'bonk'],
   giftlove: ['gift', 'love'],

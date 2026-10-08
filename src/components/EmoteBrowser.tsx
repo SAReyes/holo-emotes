@@ -58,7 +58,6 @@ export default function EmoteBrowser({ data }: Props) {
       .filter((b) => Object.keys(b.generations).length > 0);
   }, [data, activeGenerations, searchQuery]);
 
-  /** Toggle a set of generations together: all on → all off, otherwise all on. */
   function toggleGenerations(gens: string[]) {
     setActiveGenerations((prev) => {
       const next = new Set(prev ?? allGenerations);

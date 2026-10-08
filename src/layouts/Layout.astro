@@ -70,20 +70,17 @@
     font-size: inherit;
   }
 
-  /* Touch: no 300ms double-tap delay, no grey tap flash. */
   button, input, label, a {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* iOS Safari zooms the page when a focused input is under 16px. */
   @media (pointer: coarse) {
     input {
       font-size: 16px !important;
     }
   }
 
-  /* Shared entrance animations. Components reference these by name. */
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }

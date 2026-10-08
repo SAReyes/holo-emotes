@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
 
-/**
- * Keeps an element mounted for `ms` after `open` turns false so it can play
- * an exit animation. `closing` is true during that window.
- */
 export function usePresence(open: boolean, ms: number): { mounted: boolean; closing: boolean } {
   const [mounted, setMounted] = useState(open);
 

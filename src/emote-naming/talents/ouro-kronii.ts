@@ -1,15 +1,9 @@
 import { joinParts, splitWords, stripLeadingWord, type TalentNamingExports } from '../shared';
 
-/**
- * Most emotes are "kro" + word ("krogwak", "krodoubt"). Puns that only work as
- * one word stay whole. "kronie" (the fans) and "boros" (the snake) are kept as
- * sub-prefixes, like Bijou's "pebble".
- */
 const WHOLE = new Set(['krosrprise', 'kronichiwa', 'kronfused', 'kropium', 'yukkronii']);
 const SUB_PREFIXES = ['kronie', 'boros'];
 const SELF = ['kronii', 'kro'];
 
-/** Keys are the remainder after any prefix above is stripped. */
 const SPLIT: Record<string, string[]> = {
   megalol: ['mega', 'lol'],
   hairflip: ['hair', 'flip'],

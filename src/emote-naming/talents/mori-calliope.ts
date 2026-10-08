@@ -1,10 +1,5 @@
 import { joinParts, splitWords, type TalentNamingExports } from '../shared';
 
-/**
- * Lowercase compounds the wiki writes as one token. RipR/RipI/RipP spell "RIP"
- * across three emotes. Her own name is dropped where it appears ("happymori",
- * "calliopog") since the prefix already carries it.
- */
 const SPLIT: Record<string, string[]> = {
   ripr: ['rip', 'r'],
   ripi: ['rip', 'i'],

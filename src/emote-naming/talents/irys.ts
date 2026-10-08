@@ -1,6 +1,5 @@
 import { joinParts, splitWords, stripLeadingWord, type TalentNamingExports } from '../shared';
 
-/** Keys are the remainder after "irys". Paired l/r emotes become left/right. */
 const SPLIT: Record<string, string[]> = {
   wingl: ['wing', 'left'],
   wingr: ['wing', 'right'],

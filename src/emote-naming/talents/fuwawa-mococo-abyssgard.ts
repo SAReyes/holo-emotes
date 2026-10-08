@@ -1,10 +1,5 @@
 import { joinParts, type TalentNamingExports } from '../shared';
 
-/**
- * FuwaMoco share one emote pool. Names led by FUWA or MOCO keep that twin as
- * their prefix; everything shared by both ("BAU", "KUSA", "emojiF") takes the
- * duo prefix from the export modal.
- */
 export default {
   'Fuwawa & Mococo Abyssgard': {
     defaultPrefix: 'fwmc',

@@ -1,6 +1,5 @@
 import { joinParts, splitCamelCaseWords, stripLeadingWord, type TalentNamingExports } from '../shared';
 
-/** Compounds the wiki writes as one token after the bijou prefix. */
 const SPLIT: Record<string, string[]> = {
   swirlyeyes: ['swirly', 'eyes'],
 };
@@ -15,7 +14,6 @@ export default {
       if (SPLIT[key]) {
         words = SPLIT[key];
       } else if (key.startsWith('pebble')) {
-        // "Pebblecry", "PebbleAAA": pebble is a sub-prefix for the fan mascot
         words = ['pebble', splitCamelCaseWords(rest.slice(6), separator).toLowerCase()];
       } else {
         words = [splitCamelCaseWords(rest, separator).toLowerCase()];

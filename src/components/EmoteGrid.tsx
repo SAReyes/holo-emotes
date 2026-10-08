@@ -28,10 +28,6 @@ export default function EmoteGrid({
 }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
-  /**
-   * Hover preview for mouse users only. On iOS a tap whose mouseenter handler
-   * mutates the DOM is treated as a hover, and the click is swallowed.
-   */
   function handlePointerEnter(e: PointerEvent, name: string, url: string) {
     if (e.pointerType !== 'mouse') return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -195,7 +191,6 @@ export default function EmoteGrid({
           gap: 6px;
           min-width: 90px;
         }
-
 
         .tooltip-img {
           width: 80px;

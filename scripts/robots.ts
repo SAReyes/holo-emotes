@@ -1,8 +1,3 @@
-/**
- * Minimal robots.txt support: parse the `User-agent: *` group and decide
- * whether a path may be fetched. Longest matching rule wins; on a tie Allow
- * wins (the same semantics Google documents).
- */
 export interface RobotsRules {
   allow: string[];
   disallow: string[];
@@ -22,7 +17,6 @@ export function parseRobots(text: string, agent = "*"): RobotsRules {
     const value = line.slice(colon + 1).trim();
 
     if (key === "user-agent") {
-      // Consecutive user-agent lines form one group; a rule line closes the header.
       if (!sawAgentLine) inGroup = false;
       sawAgentLine = true;
       if (value.toLowerCase() === agent.toLowerCase()) inGroup = true;
@@ -53,7 +47,6 @@ function longestMatch(rules: string[], path: string): number {
   return best;
 }
 
-/** `path` is the URL path plus query string, e.g. "/w/api.php?action=parse". */
 export function isAllowed(rules: RobotsRules, path: string): boolean {
   const allow = longestMatch(rules.allow, path);
   const disallow = longestMatch(rules.disallow, path);
@@ -63,7 +56,6 @@ export function isAllowed(rules: RobotsRules, path: string): boolean {
 
 const cache = new Map<string, Promise<RobotsRules>>();
 
-/** Fetch and cache the robots.txt for a URL's origin. A missing file allows everything. */
 export function robotsFor(url: string): Promise<RobotsRules> {
   const origin = new URL(url).origin;
   let pending = cache.get(origin);
@@ -78,7 +70,6 @@ export function robotsFor(url: string): Promise<RobotsRules> {
   return pending;
 }
 
-/** Throw before fetching a URL the host's robots.txt disallows for everyone. */
 export async function assertAllowed(url: string): Promise<void> {
   const u = new URL(url);
   const rules = await robotsFor(url);

@@ -1,6 +1,5 @@
 import { joinParts, splitWords, type TalentNamingExports } from '../shared';
 
-/** Mixed lowercase/SHOUTED single tokens; these are the ones that read as several words. */
 const SPLIT: Record<string, string[]> = {
   squeakyay: ['squeak', 'yay'],
   squeakno: ['squeak', 'no'],

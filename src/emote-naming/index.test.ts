@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { getDefaultPrefixes, hasTalentTransform, stripEmoteDelimiters, toSlackName } from './index';
 import { sanitizeSlug, splitCamelCaseWords } from './shared';
 
-// Emote names below are real entries from public/emotes/*.json.
-
 describe('stripEmoteDelimiters', () => {
   it('removes the ": name:" wrapper the wiki uses', () => {
     expect(stripEmoteDelimiters(': CeCeLaugh:')).toBe('CeCeLaugh');
