@@ -1,5 +1,7 @@
 import { createPortal } from 'preact/compat';
 import EmoteImg from './EmoteImg';
+import Collapsible from './Collapsible';
+import { usePresence } from './use-presence';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { SelectedEmote } from '../types';
 import {
@@ -31,6 +33,8 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   const [namingPrefixes, setNamingPrefixes] = useState<Record<string, string>>({});
   const [slackExportTab, setSlackExportTab] = useState<SlackExportModalTab>('image');
   const exportWrapRef = useRef<HTMLDivElement>(null);
+  const exportMenu = usePresence(exportMenuOpen && !exporting, 140);
+  const slackModal = usePresence(slackModalOpen, 160);
   const count = selected.size;
   const visible = count > 0;
 
@@ -202,9 +206,9 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
-            {exportMenuOpen && !exporting && (
+            {exportMenu.mounted && (
               <div
-                class="export-menu"
+                class={`export-menu ${exportMenu.closing ? 'closing' : ''}`}
                 role="menu"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -246,7 +250,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         </div>
       </div>
 
-      {expanded && (
+      <Collapsible open={expanded}>
         <div class="expanded-grid">
           {entries.map(([key, emote]) => (
             <div key={key} class="sel-emote">
@@ -264,18 +268,18 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
             </div>
           ))}
         </div>
-      )}
+      </Collapsible>
 
       {typeof document !== 'undefined' &&
-        slackModalOpen &&
+        slackModal.mounted &&
         createPortal(
           <div
-            class="res-modal-overlay"
+            class={`res-modal-overlay ${slackModal.closing ? 'closing' : ''}`}
             role="presentation"
             onClick={() => !exporting && setSlackModalOpen(false)}
           >
             <div
-              class="res-modal"
+              class={`res-modal ${slackModal.closing ? 'closing' : ''}`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="res-modal-title"
@@ -512,16 +516,32 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           backdrop-filter: blur(16px);
           z-index: 60;
           box-shadow: 0 -4px 32px rgba(51, 204, 255, 0.1);
-          transition: max-height 0.3s ease;
+          padding-bottom: env(safe-area-inset-bottom);
+          animation: slide-up 240ms ease-out;
         }
 
         .bar-inner {
           max-width: 1600px;
           margin: 0 auto;
-          padding: 10px 24px;
+          padding: 10px 12px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
+        }
+
+        .preview-strip {
+          display: none;
+        }
+
+        @media (min-width: 640px) {
+          .bar-inner {
+            padding: 10px 24px;
+            gap: 12px;
+          }
+
+          .preview-strip {
+            display: flex;
+          }
         }
 
         .bar-summary {
@@ -539,9 +559,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         }
 
         .preview-strip {
-          display: flex;
           align-items: center;
-          gap: -4px;
           flex-shrink: 0;
         }
 
@@ -571,6 +589,9 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           font-size: 13px;
           color: var(--text-secondary);
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          min-width: 0;
         }
 
         .bar-count strong {
@@ -664,6 +685,13 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           border-radius: var(--radius-sm);
           box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
           z-index: 70;
+          transform-origin: bottom right;
+          animation: pop-in 160ms ease-out;
+        }
+
+        .export-menu.closing {
+          animation: pop-out 140ms ease-in forwards;
+          pointer-events: none;
         }
 
         .export-option {
@@ -730,7 +758,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         .expanded-grid {
           max-width: 1600px;
           margin: 0 auto;
-          padding: 0 24px 14px;
+          padding: 0 12px 14px;
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
@@ -774,8 +802,18 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           transition: opacity var(--transition);
         }
 
+        .sel-emote {
+          animation: pop-in 180ms ease-out;
+        }
+
         .sel-emote:hover .sel-remove {
           opacity: 1;
+        }
+
+        @media (hover: none) {
+          .sel-remove {
+            opacity: 1;
+          }
         }
 
         .sel-name {
@@ -799,18 +837,31 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 24px;
+          padding: 16px;
           backdrop-filter: blur(4px);
+          animation: fade-in 180ms ease-out;
+        }
+
+        .res-modal-overlay.closing {
+          animation: fade-out 160ms ease-in forwards;
+          pointer-events: none;
+        }
+
+        .res-modal.closing {
+          animation: pop-out 160ms ease-in forwards;
         }
 
         .res-modal {
           width: 100%;
           max-width: 400px;
+          max-height: 100%;
+          overflow-y: auto;
           background: var(--bg-elevated);
           border: 1px solid var(--border);
           border-radius: var(--radius-md);
           box-shadow: var(--shadow);
           padding: 20px 22px;
+          animation: pop-in 200ms ease-out;
         }
 
         .res-modal-title {

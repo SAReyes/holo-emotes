@@ -1,5 +1,6 @@
 import type { SelectedEmote } from '../types';
 import EmoteGrid from './EmoteGrid';
+import Collapsible from './Collapsible';
 
 interface Props {
   branchName: string;
@@ -83,7 +84,7 @@ export default function TalentSection({
                   <line x1="12" y1="9" x2="12" y2="13" />
                   <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
-                Default naming
+                <span class="talent-naming-warn-text">Default naming</span>
               </span>
             )}
           </span>
@@ -114,7 +115,7 @@ export default function TalentSection({
         </button>
       </div>
 
-      {expanded && (
+      <Collapsible open={expanded}>
         <div class="talent-body">
           <EmoteGrid
             branchName={branchName}
@@ -125,7 +126,7 @@ export default function TalentSection({
             onToggleEmote={onToggleEmote}
           />
         </div>
-      )}
+      </Collapsible>
 
       <style>{`
         .talent-section {
@@ -191,9 +192,23 @@ export default function TalentSection({
           font-size: 12.5px;
           font-weight: 600;
           min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          overflow-wrap: anywhere;
+        }
+
+        .talent-naming-warn-text {
+          display: none;
+        }
+
+        @media (min-width: 640px) {
+          .talent-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .talent-naming-warn-text {
+            display: inline;
+          }
         }
 
         .talent-naming-warn {
@@ -260,7 +275,13 @@ export default function TalentSection({
 
         .talent-body {
           border-top: 1px solid var(--border);
-          padding: 10px;
+          padding: 6px;
+        }
+
+        @media (min-width: 640px) {
+          .talent-body {
+            padding: 10px;
+          }
         }
       `}</style>
     </div>

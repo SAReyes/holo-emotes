@@ -1,13 +1,16 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { usePresence } from './use-presence';
+
+interface GenerationGroup {
+  name: string;
+  generations: string[];
+}
 
 interface Props {
-  branches: string[];
-  generations: string[];
-  activeBranches: Set<string>;
+  groups: GenerationGroup[];
   activeGenerations: Set<string> | null;
   searchQuery: string;
-  onToggleBranch: (name: string) => void;
-  onToggleGeneration: (gen: string) => void;
+  onToggleGenerations: (gens: string[]) => void;
   onSearchChange: (q: string) => void;
   onClearFilters: () => void;
 }
@@ -23,52 +26,48 @@ function getBranchColor(name: string) {
   return BRANCH_COLORS[name] ?? '#aaaacc';
 }
 
+function CheckIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
 export default function FilterBar({
-  branches,
-  generations,
-  activeBranches,
+  groups,
   activeGenerations,
   searchQuery,
-  onToggleBranch,
-  onToggleGeneration,
+  onToggleGenerations,
   onSearchChange,
   onClearFilters,
 }: Props) {
   const [genOpen, setGenOpen] = useState(false);
+  const genWrapRef = useRef<HTMLDivElement>(null);
+  const genMenu = usePresence(genOpen, 140);
 
-  const hasActiveFilters =
-    activeBranches.size < branches.length ||
-    activeGenerations !== null ||
-    searchQuery.trim() !== '';
+  useEffect(() => {
+    if (!genOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      const el = genWrapRef.current;
+      if (el && !el.contains(e.target as Node)) setGenOpen(false);
+    };
+    const id = requestAnimationFrame(() => document.addEventListener('click', onDoc));
+    return () => {
+      cancelAnimationFrame(id);
+      document.removeEventListener('click', onDoc);
+    };
+  }, [genOpen]);
 
+  const generations = groups.flatMap((g) => g.generations);
+  const isActive = (gen: string) => activeGenerations === null || activeGenerations.has(gen);
+  const hasActiveFilters = activeGenerations !== null || searchQuery.trim() !== '';
   const activeGenCount = activeGenerations === null ? generations.length : activeGenerations.size;
 
   return (
     <div class="filter-bar">
       <div class="filter-inner">
-        <div class="filter-group">
-          <span class="filter-label">Branches</span>
-          <div class="branch-pills">
-            {branches.map((name) => {
-              const active = activeBranches.has(name);
-              const color = getBranchColor(name);
-              return (
-                <button
-                  key={name}
-                  class={`branch-pill ${active ? 'active' : ''}`}
-                  style={active ? `--pill-color: ${color}` : ''}
-                  onClick={() => onToggleBranch(name)}
-                  title={name}
-                >
-                  <span class="pill-dot" style={`background: ${color}`} />
-                  {name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div class="filter-group filter-group--gen">
+        <div class="filter-group filter-group--gen" ref={genWrapRef}>
           <button
             class={`gen-dropdown-btn ${genOpen ? 'open' : ''} ${activeGenerations !== null ? 'has-filter' : ''}`}
             onClick={() => setGenOpen((v) => !v)}
@@ -85,42 +84,54 @@ export default function FilterBar({
             </svg>
           </button>
 
-          {genOpen && (
-            <div class="gen-dropdown">
+          {genMenu.mounted && (
+            <div class={`gen-dropdown ${genMenu.closing ? 'closing' : ''}`}>
               <div class="gen-dropdown-header">
                 <span>Filter by generation</span>
                 <button
                   class="gen-clear"
                   onClick={() => {
-                    if (activeGenerations === null) {
-                      generations.forEach(onToggleGeneration);
-                    } else {
-                      onClearFilters();
-                    }
+                    if (activeGenerations === null) onToggleGenerations(generations);
+                    else onClearFilters();
                   }}
                 >
                   {activeGenerations !== null ? 'Show all' : 'Hide all'}
                 </button>
               </div>
               <div class="gen-list">
-                {generations.map((gen) => {
-                  const active = activeGenerations === null || activeGenerations.has(gen);
+                {groups.map((group) => {
+                  const groupActive = group.generations.every(isActive);
+                  const groupPartial = !groupActive && group.generations.some(isActive);
+                  const color = getBranchColor(group.name);
                   return (
-                    <label key={gen} class={`gen-item ${active ? 'active' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={active}
-                        onChange={() => onToggleGeneration(gen)}
-                      />
-                      <span class="gen-check">
-                        {active && (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        )}
-                      </span>
-                      <span class="gen-name">{gen}</span>
-                    </label>
+                    <div key={group.name} class="gen-group">
+                      <label class={`gen-item gen-item--group ${groupActive ? 'active' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={groupActive}
+                          onChange={() => onToggleGenerations(group.generations)}
+                        />
+                        <span class={`gen-check ${groupPartial ? 'partial' : ''}`}>
+                          {groupActive && <CheckIcon />}
+                        </span>
+                        <span class="gen-dot" style={`background: ${color}`} />
+                        <span class="gen-name">{group.name}</span>
+                      </label>
+                      {group.generations.map((gen) => {
+                        const active = isActive(gen);
+                        return (
+                          <label key={gen} class={`gen-item gen-item--child ${active ? 'active' : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              onChange={() => onToggleGenerations([gen])}
+                            />
+                            <span class="gen-check">{active && <CheckIcon />}</span>
+                            <span class="gen-name">{gen}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   );
                 })}
               </div>
@@ -137,7 +148,7 @@ export default function FilterBar({
             <input
               type="search"
               class="search-input"
-              placeholder="Search talents or emotes…"
+              placeholder="Search…"
               value={searchQuery}
               onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
             />
@@ -158,25 +169,24 @@ export default function FilterBar({
         )}
       </div>
 
-      {genOpen && <div class="gen-overlay" onClick={() => setGenOpen(false)} />}
-
       <style>{`
         .filter-bar {
           background-color: rgba(18, 18, 31, 0.9);
+          border-top: 1px solid var(--border);
           border-bottom: 1px solid var(--border);
           backdrop-filter: blur(12px);
           position: sticky;
-          top: 65px;
+          top: 0;
           z-index: 40;
         }
 
         .filter-inner {
           max-width: 1600px;
           margin: 0 auto;
-          padding: 10px 24px;
+          padding: 8px 12px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 8px 12px;
           flex-wrap: wrap;
         }
 
@@ -192,60 +202,17 @@ export default function FilterBar({
 
         .filter-group--search {
           flex: 1;
-          min-width: 200px;
+          min-width: 120px;
         }
 
-        .filter-label {
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          white-space: nowrap;
-        }
+        @media (min-width: 640px) {
+          .filter-inner {
+            padding: 10px 24px;
+          }
 
-        .branch-pills {
-          display: flex;
-          gap: 6px;
-          flex-wrap: wrap;
-        }
-
-        .branch-pill {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 5px 10px;
-          border-radius: 20px;
-          border: 1px solid var(--border);
-          background: var(--bg-elevated);
-          color: var(--text-secondary);
-          font-size: 12px;
-          font-weight: 500;
-          transition: all var(--transition);
-          white-space: nowrap;
-        }
-
-        .branch-pill:hover {
-          border-color: var(--border-light);
-          color: var(--text-primary);
-        }
-
-        .branch-pill.active {
-          background: color-mix(in srgb, var(--pill-color) 12%, var(--bg-elevated));
-          border-color: color-mix(in srgb, var(--pill-color) 50%, transparent);
-          color: var(--pill-color, var(--accent));
-        }
-
-        .pill-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          flex-shrink: 0;
-          opacity: 0.7;
-        }
-
-        .branch-pill.active .pill-dot {
-          opacity: 1;
+          .filter-group--search {
+            min-width: 200px;
+          }
         }
 
         .gen-dropdown-btn {
@@ -306,6 +273,13 @@ export default function FilterBar({
           display: flex;
           flex-direction: column;
           z-index: 100;
+          transform-origin: top left;
+          animation: pop-in 160ms ease-out;
+        }
+
+        .gen-dropdown.closing {
+          animation: pop-out 140ms ease-in forwards;
+          pointer-events: none;
         }
 
         .gen-dropdown-header {
@@ -389,10 +363,31 @@ export default function FilterBar({
           line-height: 1.3;
         }
 
-        .gen-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 99;
+        .gen-group + .gen-group {
+          margin-top: 4px;
+          padding-top: 4px;
+          border-top: 1px solid var(--border);
+        }
+
+        .gen-item--group {
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .gen-item--child {
+          padding-left: 28px;
+        }
+
+        .gen-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .gen-check.partial {
+          border-color: var(--accent);
+          background: var(--accent-glow);
         }
 
         .search-wrap {

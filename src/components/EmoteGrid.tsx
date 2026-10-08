@@ -28,7 +28,12 @@ export default function EmoteGrid({
 }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
-  function handleMouseEnter(e: MouseEvent, name: string, url: string) {
+  /**
+   * Hover preview for mouse users only. On iOS a tap whose mouseenter handler
+   * mutates the DOM is treated as a hover, and the click is swallowed.
+   */
+  function handlePointerEnter(e: PointerEvent, name: string, url: string) {
+    if (e.pointerType !== 'mouse') return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setTooltip({
       name,
@@ -38,7 +43,7 @@ export default function EmoteGrid({
     });
   }
 
-  function handleMouseLeave() {
+  function handlePointerLeave() {
     setTooltip(null);
   }
 
@@ -53,8 +58,8 @@ export default function EmoteGrid({
             key={name}
             class={`emote-card ${selected ? 'selected' : ''}`}
             onClick={() => onToggleEmote({ branch: branchName, generation, talent, name, url })}
-            onMouseEnter={(e) => handleMouseEnter(e, name, url)}
-            onMouseLeave={handleMouseLeave}
+            onPointerEnter={(e) => handlePointerEnter(e, name, url)}
+            onPointerLeave={handlePointerLeave}
             title={name}
             aria-pressed={selected}
           >
@@ -105,18 +110,25 @@ export default function EmoteGrid({
           color: var(--text-secondary);
         }
 
-        .emote-card:hover {
-          border-color: var(--border-light);
-          background: var(--bg-hover);
-          color: var(--text-primary);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        @media (hover: hover) {
+          .emote-card:hover {
+            border-color: var(--border-light);
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
         }
 
         .emote-card.selected {
           border-color: var(--accent);
           background: var(--accent-glow);
           box-shadow: 0 0 0 1px var(--accent-dim), 0 0 12px rgba(51, 204, 255, 0.1);
+        }
+
+        .emote-card:active {
+          transform: scale(0.94);
+          transition-duration: 80ms;
         }
 
         .emote-card.selected:hover {
@@ -151,6 +163,7 @@ export default function EmoteGrid({
           align-items: center;
           justify-content: center;
           color: var(--accent);
+          animation: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1.3);
         }
 
         .emote-name {
@@ -182,6 +195,7 @@ export default function EmoteGrid({
           gap: 6px;
           min-width: 90px;
         }
+
 
         .tooltip-img {
           width: 80px;

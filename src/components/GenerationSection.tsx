@@ -1,6 +1,7 @@
 import type { TalentMap, SelectedEmote } from '../types';
 import { hasTalentTransform } from '../emote-naming';
 import TalentSection from './TalentSection';
+import Collapsible from './Collapsible';
 
 interface Props {
   branchName: string;
@@ -56,12 +57,12 @@ export default function GenerationSection({
         </svg>
         <span class="gen-name">{generation}</span>
         <div class="gen-badges">
-          <span class="gen-badge">{talentCount} talent{talentCount !== 1 ? 's' : ''}</span>
+          <span class="gen-badge gen-badge--secondary">{talentCount} talent{talentCount !== 1 ? 's' : ''}</span>
           <span class="gen-badge gen-badge--count">{emoteCount} emotes</span>
         </div>
       </button>
 
-      {expanded && (
+      <Collapsible open={expanded}>
         <div class="gen-body">
           {Object.entries(talents).map(([talent, emotes]) => (
             <TalentSection
@@ -81,7 +82,7 @@ export default function GenerationSection({
             />
           ))}
         </div>
-      )}
+      </Collapsible>
 
       <style>{`
         .gen-section {
@@ -148,6 +149,16 @@ export default function GenerationSection({
           white-space: nowrap;
         }
 
+        .gen-badge--secondary {
+          display: none;
+        }
+
+        @media (min-width: 640px) {
+          .gen-badge--secondary {
+            display: inline;
+          }
+        }
+
         .gen-badge--count {
           color: var(--accent);
           border-color: var(--accent-dim);
@@ -156,10 +167,16 @@ export default function GenerationSection({
 
         .gen-body {
           border-top: 1px solid var(--border);
-          padding: 8px;
+          padding: 5px;
           display: flex;
           flex-direction: column;
           gap: 5px;
+        }
+
+        @media (min-width: 640px) {
+          .gen-body {
+            padding: 8px;
+          }
         }
       `}</style>
     </div>

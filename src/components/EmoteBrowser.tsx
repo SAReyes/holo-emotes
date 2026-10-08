@@ -11,25 +11,20 @@ interface Props {
 export default function EmoteBrowser({ data }: Props) {
   const [selectedEmotes, setSelectedEmotes] = useState<Map<string, SelectedEmote>>(new Map());
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-  const [activeBranches, setActiveBranches] = useState<Set<string>>(
-    new Set(data.map((b) => b.name))
-  );
   const [activeGenerations, setActiveGenerations] = useState<Set<string> | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const allGenerations = useMemo(() => {
-    const gens = new Set<string>();
-    for (const branch of data) {
-      for (const gen of Object.keys(branch.generations)) {
-        gens.add(gen);
-      }
-    }
-    return Array.from(gens);
-  }, [data]);
+  const generationGroups = useMemo(
+    () => data.map((b) => ({ name: b.name, generations: Object.keys(b.generations) })),
+    [data],
+  );
+  const allGenerations = useMemo(
+    () => generationGroups.flatMap((g) => g.generations),
+    [generationGroups],
+  );
 
   const filteredData = useMemo(() => {
     return data
-      .filter((b) => activeBranches.has(b.name))
       .map((branch) => {
         const filteredGens: typeof branch.generations = {};
         for (const [gen, talents] of Object.entries(branch.generations)) {
@@ -61,7 +56,20 @@ export default function EmoteBrowser({ data }: Props) {
         return { ...branch, generations: filteredGens };
       })
       .filter((b) => Object.keys(b.generations).length > 0);
-  }, [data, activeBranches, activeGenerations, searchQuery]);
+  }, [data, activeGenerations, searchQuery]);
+
+  /** Toggle a set of generations together: all on → all off, otherwise all on. */
+  function toggleGenerations(gens: string[]) {
+    setActiveGenerations((prev) => {
+      const next = new Set(prev ?? allGenerations);
+      const allOn = gens.every((g) => next.has(g));
+      for (const g of gens) {
+        if (allOn) next.delete(g);
+        else next.add(g);
+      }
+      return next.size === allGenerations.length ? null : next;
+    });
+  }
 
   function toggleNode(key: string) {
     setExpandedNodes((prev) => {
@@ -135,44 +143,20 @@ export default function EmoteBrowser({ data }: Props) {
     <div class="app">
       <header class="app-header">
         <div class="header-inner">
-          <div class="header-title">
-            <h1>
-              <span class="holo-gradient">Holo</span> Emotes
-            </h1>
-            <p class="header-subtitle">{totalEmoteCount.toLocaleString()} emotes across {data.length} branches</p>
-          </div>
+          <h1>
+            <span class="holo-gradient">Holo</span> Emotes
+          </h1>
+          <p class="header-subtitle">{totalEmoteCount.toLocaleString()} emotes across {data.length} branches</p>
         </div>
       </header>
 
       <FilterBar
-        branches={data.map((b) => b.name)}
-        generations={allGenerations}
-        activeBranches={activeBranches}
+        groups={generationGroups}
         activeGenerations={activeGenerations}
         searchQuery={searchQuery}
-        onToggleBranch={(name) => {
-          setActiveBranches((prev) => {
-            const next = new Set(prev);
-            if (next.has(name)) next.delete(name);
-            else next.add(name);
-            return next;
-          });
-        }}
-        onToggleGeneration={(gen) => {
-          setActiveGenerations((prev) => {
-            if (prev === null) {
-              return new Set(allGenerations.filter((g) => g !== gen));
-            }
-            const next = new Set(prev);
-            if (next.has(gen)) next.delete(gen);
-            else next.add(gen);
-            if (next.size === allGenerations.length) return null;
-            return next;
-          });
-        }}
+        onToggleGenerations={toggleGenerations}
         onSearchChange={setSearchQuery}
         onClearFilters={() => {
-          setActiveBranches(new Set(data.map((b) => b.name)));
           setActiveGenerations(null);
           setSearchQuery('');
         }}
@@ -186,7 +170,6 @@ export default function EmoteBrowser({ data }: Props) {
             <button
               class="btn-secondary"
               onClick={() => {
-                setActiveBranches(new Set(data.map((b) => b.name)));
                 setActiveGenerations(null);
                 setSearchQuery('');
               }}
@@ -249,25 +232,20 @@ export default function EmoteBrowser({ data }: Props) {
 
         .app-header {
           background: linear-gradient(180deg, var(--bg-surface) 0%, transparent 100%);
-          border-bottom: 1px solid var(--border);
-          padding: 20px 0 16px;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          backdrop-filter: blur(12px);
-          background-color: rgba(18, 18, 31, 0.85);
+          padding: 12px 0 10px;
         }
 
         .header-inner {
           max-width: 1600px;
           margin: 0 auto;
-          padding: 0 24px;
+          padding: 0 16px;
           display: flex;
-          align-items: center;
-          gap: 16px;
+          align-items: baseline;
+          flex-wrap: wrap;
+          gap: 2px 12px;
         }
 
-        .header-title h1 {
+        .app-header h1 {
           font-size: 22px;
           font-weight: 700;
           letter-spacing: -0.5px;
@@ -284,7 +262,6 @@ export default function EmoteBrowser({ data }: Props) {
         .header-subtitle {
           font-size: 12px;
           color: var(--text-muted);
-          margin-top: 2px;
         }
 
         .app-main {
@@ -292,10 +269,26 @@ export default function EmoteBrowser({ data }: Props) {
           max-width: 1600px;
           width: 100%;
           margin: 0 auto;
-          padding: 16px 24px 120px;
+          padding: 12px 12px 120px;
           display: flex;
           flex-direction: column;
           gap: 8px;
+        }
+
+        @media (min-width: 640px) {
+          .app-header {
+            padding: 20px 0 16px;
+          }
+
+          .header-inner,
+          .app-footer {
+            padding-left: 24px;
+            padding-right: 24px;
+          }
+
+          .app-main {
+            padding: 16px 24px 120px;
+          }
         }
 
         .empty-state {
@@ -330,7 +323,7 @@ export default function EmoteBrowser({ data }: Props) {
           max-width: 1600px;
           width: 100%;
           margin: 0 auto;
-          padding: 16px 24px 120px;
+          padding: 16px 12px 120px;
           text-align: center;
           font-size: 12px;
         }

@@ -1,5 +1,6 @@
 import type { BranchData, SelectedEmote } from '../types';
 import GenerationSection from './GenerationSection';
+import Collapsible from './Collapsible';
 
 const BRANCH_COLORS: Record<string, string> = {
   'Hololive English': '#33ccff',
@@ -65,13 +66,13 @@ export default function BranchSection({
         </svg>
         <span class="branch-name">{branch.name}</span>
         <div class="branch-badges">
-          <span class="badge">{genCount} gen{genCount !== 1 ? 's' : ''}</span>
-          <span class="badge">{talentCount} talents</span>
+          <span class="badge badge--secondary">{genCount} gen{genCount !== 1 ? 's' : ''}</span>
+          <span class="badge badge--secondary">{talentCount} talents</span>
           <span class="badge badge--emotes">{emoteCount.toLocaleString()} emotes</span>
         </div>
       </button>
 
-      {expanded && (
+      <Collapsible open={expanded}>
         <div class="branch-body">
           {Object.entries(branch.generations).map(([gen, talents]) => (
             <GenerationSection
@@ -91,7 +92,7 @@ export default function BranchSection({
             />
           ))}
         </div>
-      )}
+      </Collapsible>
 
       <style>{`
         .branch-section {
@@ -170,6 +171,16 @@ export default function BranchSection({
           white-space: nowrap;
         }
 
+        .badge--secondary {
+          display: none;
+        }
+
+        @media (min-width: 640px) {
+          .badge--secondary {
+            display: inline;
+          }
+        }
+
         .badge--emotes {
           background: color-mix(in srgb, var(--branch-color) 10%, var(--bg-elevated));
           border-color: color-mix(in srgb, var(--branch-color) 30%, transparent);
@@ -178,10 +189,16 @@ export default function BranchSection({
 
         .branch-body {
           border-top: 1px solid var(--border);
-          padding: 10px;
+          padding: 6px;
           display: flex;
           flex-direction: column;
           gap: 6px;
+        }
+
+        @media (min-width: 640px) {
+          .branch-body {
+            padding: 10px;
+          }
         }
       `}</style>
     </div>
