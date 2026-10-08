@@ -214,8 +214,17 @@ export default function EmoteBrowser({ data }: Props) {
       </main>
 
       <footer class="app-footer">
+        <p class="footer-credit">
+          Unofficial fan project, free and non-commercial. All emote artwork is
+          © <a href="https://cover-corp.com/" target="_blank" rel="noopener noreferrer">COVER Corp.</a> and
+          its talents. Emote names and images are sourced from the{' '}
+          <a href="https://hololive.wiki/wiki/Membership_Emotes" target="_blank" rel="noopener noreferrer">
+            Hololive Fan Wiki
+          </a>{' '}
+          (text under CC BY-SA 4.0). Not affiliated with or endorsed by COVER Corp.
+        </p>
         <a href="https://areyes.es" target="_blank" rel="noopener noreferrer">
-          © 2026 Adrian Reyes
+          Site © 2026 Adrian Reyes
         </a>
       </footer>
 
@@ -324,6 +333,17 @@ export default function EmoteBrowser({ data }: Props) {
           padding: 16px 24px 120px;
           text-align: center;
           font-size: 12px;
+        }
+
+        .footer-credit {
+          margin: 0 auto 8px;
+          max-width: 640px;
+          color: var(--text-muted);
+          line-height: 1.5;
+        }
+
+        .footer-credit a {
+          text-decoration: underline;
         }
 
         .app-footer a {
