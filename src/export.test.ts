@@ -128,7 +128,7 @@ describe('exportForSlack', () => {
       'gigi-wave.png': 'bytes:90px-Emote-gigi1.png',
       'gigi-wave-2.png': 'bytes:90px-Emote-gigi2.png',
       'cece-laugh.png': 'bytes:90px-Emote-cece1.png',
-      'brr.png': 'bytes:Emote-risu1.png',
+      'risu-brr.png': 'bytes:Emote-risu1.png',
     });
   });
 

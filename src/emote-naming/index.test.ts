@@ -11,7 +11,7 @@ describe('stripEmoteDelimiters', () => {
 });
 
 describe('toSlackName with the default transform (no talent override)', () => {
-  const talent = 'Ayunda Risu';
+  const talent = 'Unmapped Talent';
 
   it('lowercases and keeps alphanumerics', () => {
     expect(toSlackName(talent, ': Brr:')).toBe('brr');
@@ -1275,15 +1275,196 @@ describe('Kikirara Vivi transform', () => {
   });
 });
 
+describe('Ayunda Risu transform', () => {
+  const talent = 'Ayunda Risu';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': Brr:')).toBe('risu-brr');
+    expect(toSlackName(talent, ': LightStick:')).toBe('risu-light-stick');
+    expect(toSlackName(talent, ': LetrUBrown:')).toBe('risu-letter-u-brown');
+    expect(toSlackName(talent, ': LetterR:')).toBe('risu-letter-r');
+    expect(toSlackName(talent, ': nesoberisu:')).toBe('risu-nesobe-risu');
+    expect(toSlackName(talent, ': risuheart:')).toBe('risu-risu-heart');
+    expect(toSlackName(talent, ': LEMAO:')).toBe('risu-lemao');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': LightStick:', { separator: '_', prefixes: {} })).toBe('risu_light_stick');
+    expect(toSlackName(talent, ': Brr:', { separator: '-', prefixes: { [talent]: 'Xrisu' } })).toBe('xrisu-brr');
+  });
+});
+
+describe('Moona Hoshinova transform', () => {
+  const talent = 'Moona Hoshinova';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': Cry:')).toBe('moona-cry');
+    expect(toSlackName(talent, ': Youcandoit:')).toBe('moona-you-can-do-it');
+    expect(toSlackName(talent, ': GoodGame:')).toBe('moona-good-game');
+    expect(toSlackName(talent, ': CoolMoona:')).toBe('moona-cool-moona');
+    expect(toSlackName(talent, ': LSL:')).toBe('moona-lightstick-left');
+    expect(toSlackName(talent, ': Doki2:')).toBe('moona-doki2');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': Youcandoit:', { separator: '_', prefixes: {} })).toBe('moona_you_can_do_it');
+    expect(toSlackName(talent, ': Cry:', { separator: '-', prefixes: { [talent]: 'Xmoona' } })).toBe('xmoona-cry');
+  });
+});
+
+describe('Airani Iofifteen transform', () => {
+  const talent = 'Airani Iofifteen';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': LetterO:')).toBe('iofi-letter-o');
+    expect(toSlackName(talent, ': Letterbi:')).toBe('iofi-letter-bi');
+    expect(toSlackName(talent, ': LSleft:')).toBe('iofi-lightstick-left');
+    expect(toSlackName(talent, ': chiyopiL:')).toBe('iofi-chiyopi-left');
+    expect(toSlackName(talent, ': bigbrain:')).toBe('iofi-big-brain');
+    expect(toSlackName(talent, ': tenQ:')).toBe('iofi-ten-q');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': Letterbi:', { separator: '_', prefixes: {} })).toBe('iofi_letter_bi');
+    expect(toSlackName(talent, ': LetterO:', { separator: '-', prefixes: { [talent]: 'Xiofi' } })).toBe('xiofi-letter-o');
+  });
+});
+
+describe('Kureiji Ollie transform', () => {
+  const talent = 'Kureiji Ollie';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': lightstick:')).toBe('ollie-lightstick');
+    expect(toSlackName(talent, ': ollien:')).toBe('ollie-ollien');
+    expect(toSlackName(talent, ': hypeollie:')).toBe('ollie-hype');
+    expect(toSlackName(talent, ': OllieHug:')).toBe('ollie-hug');
+    expect(toSlackName(talent, ': AlphaI1:')).toBe('ollie-alpha-i1');
+    expect(toSlackName(talent, ': CepolL:')).toBe('ollie-cepol-left');
+    expect(toSlackName(talent, ': UdinPat:')).toBe('ollie-udin-pat');
+    expect(toSlackName(talent, ': OllieIKZ:')).toBe('ollie-ikz');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': ollien:', { separator: '_', prefixes: {} })).toBe('ollie_ollien');
+    expect(toSlackName(talent, ': lightstick:', { separator: '-', prefixes: { [talent]: 'Xollie' } })).toBe('xollie-lightstick');
+  });
+});
+
+describe('Anya Melfissa transform', () => {
+  const talent = 'Anya Melfissa';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': thisisfine:')).toBe('anya-this-is-fine');
+    expect(toSlackName(talent, ': glowkris:')).toBe('anya-glow-kris');
+    expect(toSlackName(talent, ': byebye:')).toBe('anya-byebye');
+    expect(toSlackName(talent, ': onduty:')).toBe('anya-on-duty');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': glowkris:', { separator: '_', prefixes: {} })).toBe('anya_glow_kris');
+    expect(toSlackName(talent, ': thisisfine:', { separator: '-', prefixes: { [talent]: 'Xanya' } })).toBe('xanya-this-is-fine');
+  });
+});
+
+describe('Pavolia Reine transform', () => {
+  const talent = 'Pavolia Reine';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': lightstick:')).toBe('reine-lightstick');
+    expect(toSlackName(talent, ': bigX:')).toBe('reine-big-x');
+    expect(toSlackName(talent, ': thumbsup:')).toBe('reine-thumbs-up');
+    expect(toSlackName(talent, ': meloncube:')).toBe('reine-melon-cube');
+    expect(toSlackName(talent, ': breine:')).toBe('reine-breine');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': bigX:', { separator: '_', prefixes: {} })).toBe('reine_big_x');
+    expect(toSlackName(talent, ': lightstick:', { separator: '-', prefixes: { [talent]: 'Xreine' } })).toBe('xreine-lightstick');
+  });
+});
+
+describe('Vestia Zeta transform', () => {
+  const talent = 'Vestia Zeta';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': flushed:')).toBe('zeta-flushed');
+    expect(toSlackName(talent, ': o7zeta:')).toBe('zeta-o7');
+    expect(toSlackName(talent, ': zetaGG:')).toBe('zeta-gg');
+    expect(toSlackName(talent, ': zetamin:')).toBe('zeta-zetamin');
+    expect(toSlackName(talent, ': gitgud:')).toBe('zeta-git-gud');
+    expect(toSlackName(talent, ': ZZZ:')).toBe('zeta-zzz');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': o7zeta:', { separator: '_', prefixes: {} })).toBe('zeta_o7');
+    expect(toSlackName(talent, ': flushed:', { separator: '-', prefixes: { [talent]: 'Xzeta' } })).toBe('xzeta-flushed');
+  });
+});
+
+describe('Kaela Kovalskia transform', () => {
+  const talent = 'Kaela Kovalskia';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': comfy:')).toBe('kaela-comfy');
+    expect(toSlackName(talent, ': ggez:')).toBe('kaela-gg-ez');
+    expect(toSlackName(talent, ': aletters:')).toBe('kaela-letter-a');
+    expect(toSlackName(talent, ': hammeright:')).toBe('kaela-hammer-right');
+    expect(toSlackName(talent, ': smallNT:')).toBe('kaela-small-nt');
+    expect(toSlackName(talent, ': adios1:')).toBe('kaela-adios1');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': ggez:', { separator: '_', prefixes: {} })).toBe('kaela_gg_ez');
+    expect(toSlackName(talent, ': comfy:', { separator: '-', prefixes: { [talent]: 'Xkaela' } })).toBe('xkaela-comfy');
+  });
+});
+
+describe('Kobo Kanaeru transform', () => {
+  const talent = 'Kobo Kanaeru';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': tch:')).toBe('kobo-tch');
+    expect(toSlackName(talent, ': lightleft:')).toBe('kobo-light-left');
+    expect(toSlackName(talent, ': kletter:')).toBe('kobo-letter-k');
+    expect(toSlackName(talent, ': Q3Q:')).toBe('kobo-q3q');
+    expect(toSlackName(talent, ': kobominus:')).toBe('kobo-minus');
+    expect(toSlackName(talent, ': kobonk:')).toBe('kobo-kobonk');
+    expect(toSlackName(talent, ': koboGG:')).toBe('kobo-gg');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': lightleft:', { separator: '_', prefixes: {} })).toBe('kobo_light_left');
+    expect(toSlackName(talent, ': tch:', { separator: '-', prefixes: { [talent]: 'Xkobo' } })).toBe('xkobo-tch');
+  });
+});
+
+describe('Machina X Flayon transform', () => {
+  const talent = 'Machina X Flayon';
+
+  it('names real emotes from the fetched JSON', () => {
+    expect(toSlackName(talent, ': LiesOfP:')).toBe('flayon-lies-of-p');
+    expect(toSlackName(talent, ': MachiLMAO:')).toBe('flayon-lmao');
+    expect(toSlackName(talent, ': MachiRTRUS:')).toBe('flayon-rtrus');
+    expect(toSlackName(talent, ': MrTrus:')).toBe('flayon-mr-trus');
+    expect(toSlackName(talent, ': RoonAhh:')).toBe('flayon-roon-ahh');
+    expect(toSlackName(talent, ': RoonEepy:')).toBe('flayon-roon-eepy');
+  });
+
+  it('respects the separator and prefix chosen in the export modal', () => {
+    expect(toSlackName(talent, ': MachiLMAO:', { separator: '_', prefixes: {} })).toBe('flayon_lmao');
+    expect(toSlackName(talent, ': LiesOfP:', { separator: '-', prefixes: { [talent]: 'Xflayon' } })).toBe('xflayon-lies-of-p');
+  });
+});
+
 describe('registry helpers', () => {
   it('reports which talents have a transform', () => {
     expect(hasTalentTransform('Gigi Murin')).toBe(true);
-    expect(hasTalentTransform('Ayunda Risu')).toBe(false);
+    expect(hasTalentTransform('Unmapped Talent')).toBe(false);
   });
 
   it('returns default prefixes only for registered talents', () => {
     expect(
-      getDefaultPrefixes(['Gigi Murin', 'Cecilia Immergreen', 'Raora Panthera', 'Elizabeth Rose Bloodflame', 'Mori Calliope', 'Ouro Kronii', 'Ayunda Risu']),
+      getDefaultPrefixes(['Gigi Murin', 'Cecilia Immergreen', 'Raora Panthera', 'Elizabeth Rose Bloodflame', 'Mori Calliope', 'Ouro Kronii', 'Unmapped Talent']),
     ).toEqual({
       'Gigi Murin': 'gigi',
       'Cecilia Immergreen': 'cece',

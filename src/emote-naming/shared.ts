@@ -157,8 +157,9 @@ export interface TalentRules {
 
 export function prefixedTransform(rules: TalentRules = {}) {
   return (inner: string, separator: string, prefix: string): string => {
+    const whole = rules.split?.[inner.toLowerCase()];
     const rest = rules.strip ? stripLeadingWord(inner, rules.strip) : inner;
-    const words = splitWords(rest, separator, rules.split).map((w) => romanize(w, separator, rules.readings));
+    const words = (whole ?? splitWords(rest, separator, rules.split)).map((w) => romanize(w, separator, rules.readings));
     return joinParts(separator, prefix.toLowerCase(), ...words);
   };
 }
