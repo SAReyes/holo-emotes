@@ -89,11 +89,74 @@ export function splitWords(rest: string, separator: string, split: Record<string
   return split[rest.toLowerCase()] ?? [splitCamelCaseWords(rest, separator).toLowerCase()];
 }
 
-export function romanize(inner: string, separator: string, readings: Record<string, string> = {}): string {
-  const keys = Object.keys(readings).sort((a, b) => b.length - a.length);
-  let spaced = inner;
+const COMMON_READINGS: Record<string, string> = {
+  'サイリウム': 'sairium',
+  'さいりうむ': 'sairium',
+  'ペンライト': 'penlight',
+  'ペンラ': 'penlight',
+  'ピンク': 'pink',
+  'ブルー': 'blue',
+  'グリーン': 'green',
+  'スタンプ': 'stamp',
+  'ハート': 'heart',
+  'はーと': 'heart',
+  'アイドル': 'idol',
+  'シンプル': 'simple',
+  'まーく': 'mark',
+  'マーク': 'mark',
+  'びっくり': 'bikkuri',
+  'はてな': 'hatena',
+  'ナイス': 'nice',
+  'ちゃん': 'chan',
+  '文字': 'moji',
+  '草': 'kusa',
+  'ーーー': 'nobashi',
+  'ｗ': 'w',
+};
+
+const KANA_FIXES: Record<string, string> = {
+  'ふぁ': 'fa',
+  'ふぃ': 'fi',
+  'ふぇ': 'fe',
+  'ふぉ': 'fo',
+  'ファ': 'fa',
+  'フィ': 'fi',
+  'フェ': 'fe',
+  'フォ': 'fo',
+  'ちぃ': 'chii',
+  'ひぃ': 'hii',
+  'みぃ': 'mii',
+  'ミィ': 'mii',
+};
+
+const HIRAGANA_BAR = /([\u3041-\u3096])(ー+)/g;
+
+function replaceAll(s: string, table: Record<string, string>, wrap: (v: string) => string): string {
+  const keys = Object.keys(table).sort((a, b) => b.length - a.length);
+  let out = s;
   for (const key of keys) {
-    spaced = spaced.split(key).join(` ${readings[key]} `);
+    out = out.split(key).join(wrap(table[key]));
   }
-  return defaultTransform(toRomaji(spaced), separator);
+  return out;
+}
+
+export function romanize(inner: string, separator: string, readings: Record<string, string> = {}): string {
+  const worded = replaceAll(inner, { ...COMMON_READINGS, ...readings }, (v) => ` ${v} `);
+  const stretched = worded.replace(HIRAGANA_BAR, (_, kana: string, bars: string) => kana + toRomaji(kana).slice(-1).repeat(bars.length));
+  const fixed = replaceAll(stretched, KANA_FIXES, (v) => v).normalize('NFKC');
+  return defaultTransform(toRomaji(fixed), separator);
+}
+
+export interface TalentRules {
+  strip?: string;
+  split?: Record<string, string[]>;
+  readings?: Record<string, string>;
+}
+
+export function prefixedTransform(rules: TalentRules = {}) {
+  return (inner: string, separator: string, prefix: string): string => {
+    const rest = rules.strip ? stripLeadingWord(inner, rules.strip) : inner;
+    const words = splitWords(rest, separator, rules.split).map((w) => romanize(w, separator, rules.readings));
+    return joinParts(separator, prefix.toLowerCase(), ...words);
+  };
 }

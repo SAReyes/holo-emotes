@@ -1,4 +1,4 @@
-import { joinParts, romanize, splitWords, stripLeadingWord, type TalentNamingExports } from '../shared';
+import { prefixedTransform, type TalentNamingExports } from '../shared';
 
 const SPLIT: Record<string, string[]> = {
   thankyou: ['thank', 'you'],
@@ -15,10 +15,6 @@ const READINGS: Record<string, string> = {
 export default {
   Roboco: {
     defaultPrefix: 'rbc',
-    transform(inner: string, separator: string, prefix: string): string {
-      const rest = stripLeadingWord(inner, 'rbc');
-      const words = splitWords(rest, separator, SPLIT).map((w) => romanize(w, separator, READINGS));
-      return joinParts(separator, prefix.toLowerCase(), ...words);
-    },
+    transform: prefixedTransform({ strip: 'rbc', split: SPLIT, readings: READINGS }),
   },
 } satisfies TalentNamingExports;

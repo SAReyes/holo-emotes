@@ -132,6 +132,22 @@ describe('exportForSlack', () => {
     });
   });
 
+  it('numbers real JP names that romanize to the same slug', async () => {
+    const b = stubBrowser(() => ok('x'));
+    await exportForSlack([
+      emote('Usada Pekora', ': pekoきらきら:', THUMB),
+      emote('Usada Pekora', ': pekoキラキラ:', THUMB),
+      emote('Tokoyami Towa', ': トワ様びっくり:', THUMB),
+      emote('Tokoyami Towa', ': bikkuri:', THUMB),
+    ]);
+    expect(Object.keys(await entries(b.download().blob!)).sort()).toEqual([
+      'peko-kirakira-2.png',
+      'peko-kirakira.png',
+      'towa-bikkuri-2.png',
+      'towa-bikkuri.png',
+    ]);
+  });
+
   it('applies the naming config to filenames and the duplicate suffix', async () => {
     const b = stubBrowser(() => ok('x'));
     await exportForSlack(

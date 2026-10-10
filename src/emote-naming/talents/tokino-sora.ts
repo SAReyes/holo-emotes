@@ -1,4 +1,4 @@
-import { joinParts, romanize, stripLeadingWord, type TalentNamingExports } from '../shared';
+import { prefixedTransform, type TalentNamingExports } from '../shared';
 
 const READINGS: Record<string, string> = {
   '止まらねえぞ': 'tomaranee zo',
@@ -9,25 +9,17 @@ const READINGS: Record<string, string> = {
   '赤ちゃん': 'akachan',
   'じゃあ敵だね': 'jaa teki da ne',
   'の絵文字': 'no emoji',
-  'ちゃん': 'chan',
-  'びっくり': 'bikkuri',
   'ソーダ': 'soda',
   'ミニ': 'mini',
-  'ペンラ': 'penlight',
-  'ピンク': 'pink',
   '青': 'ao',
   'スンスタンプ': 'sun stamp',
   'ザウルス': 'saurus',
-  'ナイス': 'nice',
   'ジトー': 'jito',
 };
 
 export default {
   'Tokino Sora': {
     defaultPrefix: 'sora',
-    transform(inner: string, separator: string, prefix: string): string {
-      const rest = stripLeadingWord(inner, 'そら');
-      return joinParts(separator, prefix.toLowerCase(), romanize(rest, separator, READINGS));
-    },
+    transform: prefixedTransform({ strip: 'そら', readings: READINGS }),
   },
 } satisfies TalentNamingExports;
