@@ -105,12 +105,14 @@ const COMMON_READINGS: Record<string, string> = {
   'まーく': 'mark',
   'マーク': 'mark',
   'びっくり': 'bikkuri',
+  'ビックリ': 'bikkuri',
   'はてな': 'hatena',
   'ナイス': 'nice',
   'ちゃん': 'chan',
   '文字': 'moji',
   '草': 'kusa',
   'ーーー': 'nobashi',
+  'ｗｗｗ': 'www',
   'ｗ': 'w',
 };
 

@@ -88,14 +88,21 @@ map to `left` and `right`.
 | Hakos Baelz | `bae` | Names mix lowercase and SHOUTED tokens. `SPLIT` covers the ones that read as several words, such as `squeakyay` and `whatadeal`. |
 | Hakui Koyori | `koyo` | No self-prefix. Her letter emotes pair kana with their romaji (`こko`, `無罪muzai`); each is mapped to the romaji once. `コヨーテ` is `coyote`. |
 | Himemori Luna | `luna` | No self-prefix. Only `メンバーズカード` needs a reading; the rest is kana and common loanwords, so `ペンラ11` is `luna-penlight-11`. |
+| Hiodoshi Ao | `ao` | No self-prefix. Loanwords go back to English (`カクテル` to `cocktail`, `シャンパンタワー` to `champagne tower`). `高い酒` is `takai sake`. |
 | Hoshimachi Suisei | `suisei` | Single lowercase words, prefix plus lowercase. Camel splitting separates the `bikkuriB` / `bikkuriY` pair. `suisei` is a self-prefix, so that emote becomes just `suisei`. |
 | Houshou Marine | `marine` | No self-prefix. `マリン` and `まりん` are always the word `marin`, so `ろりまりん` is `rori-marin`. `ヨーソローの` spells out her greeting one character per emote; the `のー` one reads `no-nobashi`. |
+| Ichijou Ririka | `ririka` | No self-prefix. Prefix plus lowercase. `SPLIT` covers `goodjob`. |
 | Inugami Korone | `korone` | Every name is `korone` plus CamelCase. Strip and camel-split, nothing to read. |
 | IRyS | `irys` | Strips `irys`. `SPLIT` covers the `wing`, `bloom`, and `gloom` left and right pairs plus `bloompat`, `gloompat`, `socool`. |
+| Isaki Riona | `riona` | Every name is `riona` plus a word. Strip and camel-split, so `rionalight` is `riona-light`. |
+| Juufuutei Raden | `raden` | No self-prefix. `こんばんは` reads `konbanwa`, not wanakana's `konbanha`. `okです` (lowercase, see Japanese names) is `ok desu`. `六根清浄` is `rokkon shoujou`. |
 | Kazama Iroha | `iroha` | Strips `iroha`, so `iroha1` is `iroha-1`. Lowercase single words otherwise. |
+| Kikirara Vivi | `vivi` | No self-prefix. `ヴィヴィ` is `vivi`. |
+| Koganei Niko | `niko` | No self-prefix. `ニコ担` (her fans) is `niko tan`; `の字` is `no ji`, so `ニコの字` is `niko-niko-no-ji`. `ッッッ` is `ltu-ltu-ltu`. `担の字` and `たんの字` read the same and collide. |
 | Koseki Bijou | `bijou` | Strips `bijou`. `pebble` is a sub-prefix for the fan mascot, so `bijouPebblecry` becomes `bijou-pebble-cry`. `SPLIT` covers `swirlyeyes`. |
 | La+ Darknesss | `laplus` | No self-prefix. `げーみんぐ` is `gaming`; `ぎむの` and `怒りの` are split at `no`. |
 | Minato Aqua | `aqua` | Strips `aqua`. `くそざこ余裕の余` and its pair spell a word across emotes and read `kusozako-yoyuu-no-yo` / `-yuu`. `っっっ` is `ltu-ltu-ltu`, the fan spelling of small tsu. `Aquaサイリウム` keeps the inner `aqua`. |
+| Mizumiya Su | `su` | No self-prefix. `すうの圧` is `suu no atsu`, `わらうすう` is `warau suu`. |
 | Momosuzu Nene | `nene` | No self-prefix, because `nenechigod` and `nenene` would lose their head. `nene` therefore becomes `nene-nene`. |
 | Mori Calliope | `calli` | `RipR`, `RipI`, `RipP` spell RIP across three emotes and keep the letter as its own word. Her name is dropped wherever it appears, so `happymori` becomes `happy` and `calliopog` becomes `pog`, because the prefix already carries it. |
 | Murasaki Shion | `shion` | Strips `shion`. `紫` is `murasaki`, `塩っ子` is `shiokko`, `トイレ` is `toilet`. `SPLIT` covers `thankyou`. |
@@ -108,8 +115,10 @@ map to `left` and `right`.
 | Omaru Polka | `polka` | No self-prefix. Prefix plus lowercase. |
 | Ookami Mio | `mio` | Strips `mio`. `ミオ` and `みぉ` are the word `mio`; `の` and `ノ` are the word `no`, so `ミオかわのミオ` is `mio-kawa-no-mio`. `待機の待` and `待機の機` read `taiki-no-tai` and `taiki-no-ki`. |
 | Oozora Subaru | `subaru` | Strips one `スバル`; a second `スバル` or `すばる` becomes the word `subaru`, so `スバルすばるびっくり` is `subaru-subaru-bikkuri`. `あひる` is always its own word. `ドダック` is `do duck`. |
+| Otonose Kanade | `kanade` | No self-prefix. `おつのせ` and `こんのせ` are her greetings and stay whole; `イラスト` is `illust`, `音符` is `onpu`. `ｗｗｗ` and `www` are the same word and collide. |
 | Ouro Kronii | `kronii` | Most names are `kro` plus a word. Puns that only work as one word stay whole: `krosrprise`, `kronichiwa`, `kronfused`, `kropium`, `yukkronii`. `kronie` (the fans) and `boros` (the snake) are sub-prefixes, like Bijou's `pebble`. `kronii` and `kro` are self-prefixes. |
 | Raora Panthera | `rao` | Prefix plus the lowercased name. Nothing to split. |
+| Rindo Chihaya | `chihaya` | No self-prefix. Prefix plus lowercase. |
 | Roboco | `rbc` | Every name is `rbc` plus CamelCase. Strip, camel-split, then `romanize` each word for the three Japanese names: `充電中`, `ねこたち`, and the long-vowel marks in `rbc3ーー`. `SPLIT` covers `thankyou`, `highspec`, `minus100hp`. |
 | Sakamata Chloe | `chloe` | No self-prefix. `READINGS` for `激アツ`, `助かる`, `寿司っ`, `勝ち確`, `フラグ`. Half-width `ｗ` is the word `w`. |
 | Sakura Miko | `miko` | Every name is `miko` plus CamelCase. Strip and camel-split. `SPLIT` separates `35p` (the fan name) and her own name inside compounds: `doya35p`, `mikopipipi`, `nakimiko`, `fxmiko`, `penmikop`, `kouhomikop`. |
@@ -120,6 +129,7 @@ map to `left` and `right`.
 | Shishiro Botan | `botan` | Strips `ssrb`, which is the fan name, not hers, so it is not the prefix. `SPLIT` separates a second `ssrb` (the fan mascot) in `ssrb01`, `ssrbgray`, and friends. `わらう英語` is `warau eigo`. |
 | Takanashi Kiara | `kiara` | Names are short codes such as `mgn`, `fpm`, `YLS`, `1010`. Prefix plus lowercase. |
 | Takane Lui | `lui` | No self-prefix. `SPLIT` covers `goodgame` and `socool`. |
+| Todoroki Hajime | `hajime` | No self-prefix. Prefix plus lowercase; the wiki's own spellings (`maltucho`, `yataty`) are kept. |
 | Tokino Sora | `sora` | Japanese names. Strips a leading `そら`, then `romanize` with a `READINGS` table. Katakana loanwords go back to English (`ソーダ` to `soda`, `ナイス` to `nice`, `ペンラ` to `penlight`) and `ちゃん` is always its own word, except inside `赤ちゃん`, which is one word. |
 | Tokoyami Towa | `towa` | Strips `トワ様`. `トワ文字` keeps `towa` because it has no `様`. `てんq` (lowercase, see Japanese names) is `ten q`; `エイチピー` is `hp`. `SPLIT` covers `goodgame` and `goodgame2`. |
 | Tsunomaki Watame | `watame` | No self-prefix. Colour plus `ペンラ` reads `ki-penlight`, `momo-penlight`, and so on. `臭くさ` is `kusai-kusa` to stay apart from `草くさ`. `キッ怒` is the pun `kiddo`. `SPLIT` keeps `zzz` whole. |
@@ -130,7 +140,7 @@ map to `left` and `right`.
 
 Talents without a transform get `defaultTransform` and no prefix. Names from
 different talents can then collide in Slack, which is why the EN and JP 0th
-generation transforms always add one. Every JP talent now has a transform.
+generation transforms always add one. Every JP and DEV_IS talent now has a transform.
 
 ## Japanese names
 
@@ -166,9 +176,10 @@ names, goes through untouched.
 Readings are matched against the word after `splitWords`, which lowercases
 it. A key with ASCII in it must therefore be lowercase: `てんq`, not `てんQ`.
 
-Six names in the JP branch collide after romanization because the wiki has
-the same word twice, in hiragana and katakana (`pekoきらきら` and
-`pekoキラキラ`) or with and without a prefix (`トワ様びっくり` and `bikkuri`).
+A few names collide after romanization because the wiki has the same word
+twice, in hiragana and katakana (`pekoきらきら` and `pekoキラキラ`), in
+kanji and kana (`担の字` and `たんの字`), or with and without a prefix
+(`トワ様びっくり` and `bikkuri`).
 Naming never numbers them. The export suffixes the separator and a count
 to the second and later zip entries (`peko-kirakira.png`,
 `peko-kirakira-2.png`), which `src/export.test.ts` pins with these names.
@@ -266,4 +277,7 @@ fetched JSON.
 | Tsunomaki Watame | `: 紫ペンラ:` | `watame-murasaki-penlight` |
 | Yuzuki Choco | `: ちょこ先生ＧＧ文字スタンプ:` | `choco-gg-moji-stamp` |
 | Hakui Koyori | `: 無罪muzai:` | `koyo-muzai` |
+| Juufuutei Raden | `: お酒を飲みまあす:` | `raden-osake-wo-nomimaasu` |
+| Koganei Niko | `: 照れるニコ担:` | `niko-tereru-niko-tan` |
+| Hiodoshi Ao | `: シャンパンタワー:` | `ao-champagne-tower` |
 | Watson Amelia | `: ameGatorIdol:` | `ame-gator-idol` |
