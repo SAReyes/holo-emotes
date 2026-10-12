@@ -57,8 +57,8 @@ export default function GenerationSection({
         </svg>
         <span class="gen-name">{generation}</span>
         <div class="gen-badges">
-          <span class="gen-badge gen-badge--secondary">{talentCount} talent{talentCount !== 1 ? 's' : ''}</span>
-          <span class="gen-badge gen-badge--count">{emoteCount} emotes</span>
+          <span class="gen-meta">{talentCount} talent{talentCount !== 1 ? 's' : ''}</span>
+          <span class="gen-count">{emoteCount} emotes</span>
         </div>
       </button>
 
@@ -86,10 +86,12 @@ export default function GenerationSection({
 
       <style>{`
         .gen-section {
-          background: var(--bg-elevated);
-          border: 1px solid var(--border);
           border-radius: var(--radius-md);
-          overflow: hidden;
+          transition: background var(--transition);
+        }
+
+        .gen-section:has(> .gen-header[aria-expanded="true"]) {
+          background: var(--surface-tint);
         }
 
         .gen-header {
@@ -97,9 +99,10 @@ export default function GenerationSection({
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 12px;
+          padding: 9px 10px;
           background: none;
           border: none;
+          border-radius: var(--radius-md);
           color: var(--text-secondary);
           text-align: left;
           cursor: pointer;
@@ -107,7 +110,7 @@ export default function GenerationSection({
         }
 
         .gen-header:hover {
-          background: var(--bg-hover);
+          background: var(--surface-tint-hover);
           color: var(--text-primary);
         }
 
@@ -135,47 +138,48 @@ export default function GenerationSection({
 
         .gen-badges {
           display: flex;
-          gap: 5px;
+          align-items: baseline;
+          gap: 10px;
         }
 
-        .gen-badge {
-          font-size: 10px;
-          padding: 1px 6px;
-          border-radius: 8px;
-          background: var(--bg-base);
-          border: 1px solid var(--border);
+        .gen-meta {
+          display: none;
+          font-size: 11px;
           color: var(--text-muted);
-          font-weight: 500;
           white-space: nowrap;
         }
 
-        .gen-badge--secondary {
-          display: none;
-        }
-
         @media (min-width: 640px) {
-          .gen-badge--secondary {
+          .gen-meta {
             display: inline;
           }
         }
 
-        .gen-badge--count {
+        .gen-count {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--text-muted);
+          white-space: nowrap;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .gen-header[aria-expanded="true"] .gen-count {
           color: var(--accent);
-          border-color: var(--accent-dim);
-          background: var(--accent-glow);
         }
 
         .gen-body {
-          border-top: 1px solid var(--border);
-          padding: 5px;
+          margin: 0 0 6px 15px;
+          padding-left: 6px;
+          border-left: 1px solid var(--glass-border-strong);
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 2px;
         }
 
         @media (min-width: 640px) {
           .gen-body {
-            padding: 8px;
+            margin-left: 17px;
+            padding-left: 8px;
           }
         }
       `}</style>

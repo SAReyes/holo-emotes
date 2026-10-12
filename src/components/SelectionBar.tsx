@@ -105,6 +105,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   const [botUsername, setBotUsername] = useState<string | null>(null);
   const [checkingBot, setCheckingBot] = useState(false);
   const exportWrapRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const exportMenu = usePresence(exportMenuOpen && !exporting, 140);
   const slackModal = usePresence(slackModalOpen, 160);
   const telegramModal = usePresence(telegramModalOpen, 160);
@@ -114,6 +115,23 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   const entries = Array.from(selected.entries());
   const previewEmotes = entries.slice(0, 12);
   const resizableCount = entries.filter(([, e]) => isResizableUrl(e.url)).length;
+
+  useEffect(() => {
+    const bar = barRef.current;
+    const root = document.documentElement;
+    if (!bar) {
+      root.style.setProperty('--selection-bar-height', '0px');
+      return;
+    }
+    const update = () => root.style.setProperty('--selection-bar-height', `${bar.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      root.style.setProperty('--selection-bar-height', '0px');
+    };
+  }, [visible]);
 
   useEffect(() => {
     if (!exportMenuOpen) return;
@@ -348,7 +366,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   }
 
   return (
-    <div class={`selection-bar ${expanded ? 'expanded' : ''}`}>
+    <div class={`selection-bar ${expanded ? 'expanded' : ''}`} ref={barRef}>
       <div class="bar-inner">
         <button
           class="bar-summary"
@@ -1059,11 +1077,12 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           bottom: 0;
           left: 0;
           right: 0;
-          background: rgba(18, 18, 31, 0.95);
-          border-top: 1px solid var(--accent-dim);
-          backdrop-filter: blur(16px);
+          background: var(--glass-bg);
+          border-top: 1px solid var(--glass-border-strong);
+          -webkit-backdrop-filter: var(--glass-blur);
+          backdrop-filter: var(--glass-blur);
           z-index: 60;
-          box-shadow: 0 -4px 32px rgba(51, 204, 255, 0.1);
+          box-shadow: var(--glass-highlight), 0 -8px 40px rgba(0, 0, 0, 0.35), 0 -1px 24px rgba(51, 204, 255, 0.08);
           padding-bottom: env(safe-area-inset-bottom);
           animation: slide-up 240ms ease-out;
         }
@@ -1090,6 +1109,10 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           .preview-strip {
             display: flex;
           }
+
+          .selection-bar.expanded .preview-strip {
+            display: none;
+          }
         }
 
         .bar-summary {
@@ -1115,8 +1138,8 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           width: 28px;
           height: 28px;
           object-fit: contain;
-          border-radius: 4px;
-          border: 1px solid var(--border);
+          border-radius: 8px;
+          border: 1px solid var(--glass-border-strong);
           background: var(--bg-elevated);
           margin-left: -6px;
         }
@@ -1169,8 +1192,8 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           gap: 5px;
           padding: 7px 12px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--border);
-          background: var(--bg-elevated);
+          border: 1px solid var(--glass-border-strong);
+          background: var(--surface-tint);
           color: var(--text-secondary);
           font-size: 12px;
           font-weight: 500;
@@ -1228,10 +1251,12 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           right: 0;
           min-width: 220px;
           padding: 6px;
-          background: var(--bg-elevated);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+          background: var(--glass-bg-strong);
+          border: 1px solid var(--glass-border-strong);
+          border-radius: var(--radius-md);
+          box-shadow: var(--glass-highlight), 0 -8px 32px rgba(0, 0, 0, 0.35);
+          -webkit-backdrop-filter: var(--glass-blur);
+          backdrop-filter: var(--glass-blur);
           z-index: 70;
           transform-origin: bottom right;
           animation: pop-in 160ms ease-out;
@@ -1306,7 +1331,7 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         .expanded-grid {
           max-width: 1600px;
           margin: 0 auto;
-          padding: 0 12px 14px;
+          padding: 6px 12px 14px;
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
@@ -1327,15 +1352,15 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           width: 44px;
           height: 44px;
           object-fit: contain;
-          border-radius: 6px;
-          border: 1px solid var(--border);
-          background: var(--bg-elevated);
+          border-radius: 8px;
+          border: 1px solid var(--glass-border);
+          background: var(--surface-tint);
         }
 
         .sel-remove {
           position: absolute;
           top: -4px;
-          right: -4px;
+          right: 2px;
           width: 16px;
           height: 16px;
           border-radius: 50%;
@@ -1386,7 +1411,8 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           align-items: center;
           justify-content: center;
           padding: 16px;
-          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
           animation: fade-in 180ms ease-out;
         }
 
@@ -1404,10 +1430,12 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           max-width: 400px;
           max-height: 100%;
           overflow-y: auto;
-          background: var(--bg-elevated);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-md);
-          box-shadow: var(--shadow);
+          background: var(--glass-bg-strong);
+          border: 1px solid var(--glass-border-strong);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--glass-highlight), var(--shadow);
+          -webkit-backdrop-filter: var(--glass-blur);
+          backdrop-filter: var(--glass-blur);
           padding: 20px 22px;
           animation: pop-in 200ms ease-out;
         }

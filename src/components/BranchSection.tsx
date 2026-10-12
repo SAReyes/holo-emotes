@@ -66,8 +66,7 @@ export default function BranchSection({
         </svg>
         <span class="branch-name">{branch.name}</span>
         <div class="branch-badges">
-          <span class="badge badge--secondary">{genCount} gen{genCount !== 1 ? 's' : ''}</span>
-          <span class="badge badge--secondary">{talentCount} talents</span>
+          <span class="branch-meta">{genCount} gen{genCount !== 1 ? 's' : ''} · {talentCount} talents</span>
           <span class="badge badge--emotes">{emoteCount.toLocaleString()} emotes</span>
         </div>
       </button>
@@ -96,15 +95,17 @@ export default function BranchSection({
 
       <style>{`
         .branch-section {
-          background: var(--bg-surface);
-          border: 1px solid var(--border);
+          background: var(--glass-bg);
+          border: 1px solid var(--glass-border);
           border-radius: var(--radius-lg);
+          box-shadow: var(--glass-highlight), 0 8px 32px rgba(0, 0, 0, 0.25);
           overflow: hidden;
-          transition: border-color var(--transition);
+          transition: border-color var(--transition), box-shadow var(--transition);
         }
 
         .branch-section:has(.branch-header[aria-expanded="true"]) {
-          border-color: color-mix(in srgb, var(--branch-color) 30%, var(--border));
+          border-color: color-mix(in srgb, var(--branch-color) 35%, var(--glass-border));
+          box-shadow: var(--glass-highlight), 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px color-mix(in srgb, var(--branch-color) 12%, transparent);
         }
 
         .branch-header {
@@ -123,7 +124,7 @@ export default function BranchSection({
         }
 
         .branch-header:hover {
-          background: var(--bg-hover);
+          background: var(--surface-tint);
         }
 
         .branch-accent {
@@ -160,44 +161,44 @@ export default function BranchSection({
           align-items: center;
         }
 
-        .badge {
+        .branch-meta {
+          display: none;
           font-size: 11px;
-          padding: 2px 7px;
-          border-radius: 10px;
-          background: var(--bg-elevated);
-          border: 1px solid var(--border);
           color: var(--text-muted);
-          font-weight: 500;
           white-space: nowrap;
         }
 
-        .badge--secondary {
-          display: none;
-        }
-
         @media (min-width: 640px) {
-          .badge--secondary {
+          .branch-meta {
             display: inline;
           }
         }
 
+        .badge {
+          font-size: 11px;
+          padding: 2px 8px;
+          border-radius: 10px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
         .badge--emotes {
-          background: color-mix(in srgb, var(--branch-color) 10%, var(--bg-elevated));
-          border-color: color-mix(in srgb, var(--branch-color) 30%, transparent);
+          background: color-mix(in srgb, var(--branch-color) 14%, transparent);
+          border: 1px solid color-mix(in srgb, var(--branch-color) 28%, transparent);
           color: var(--branch-color);
         }
 
         .branch-body {
-          border-top: 1px solid var(--border);
-          padding: 6px;
+          border-top: 1px solid var(--glass-border);
+          padding: 4px 6px 8px;
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 2px;
         }
 
         @media (min-width: 640px) {
           .branch-body {
-            padding: 10px;
+            padding: 6px 10px 12px;
           }
         }
       `}</style>

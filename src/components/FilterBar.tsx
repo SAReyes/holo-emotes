@@ -171,10 +171,12 @@ export default function FilterBar({
 
       <style>{`
         .filter-bar {
-          background-color: rgba(18, 18, 31, 0.9);
-          border-top: 1px solid var(--border);
-          border-bottom: 1px solid var(--border);
-          backdrop-filter: blur(12px);
+          background-color: var(--glass-bg);
+          border-top: 1px solid var(--glass-border);
+          border-bottom: 1px solid var(--glass-border);
+          box-shadow: var(--glass-highlight);
+          -webkit-backdrop-filter: var(--glass-blur);
+          backdrop-filter: var(--glass-blur);
           position: sticky;
           top: 0;
           z-index: 40;
@@ -263,10 +265,12 @@ export default function FilterBar({
           position: absolute;
           top: calc(100% + 6px);
           left: 0;
-          background: var(--bg-elevated);
-          border: 1px solid var(--border-light);
+          background: var(--glass-bg-strong);
+          border: 1px solid var(--glass-border-strong);
           border-radius: var(--radius-md);
-          box-shadow: var(--shadow);
+          box-shadow: var(--glass-highlight), var(--shadow);
+          -webkit-backdrop-filter: var(--glass-blur);
+          backdrop-filter: var(--glass-blur);
           min-width: 280px;
           max-height: 360px;
           overflow: hidden;

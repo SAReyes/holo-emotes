@@ -6,6 +6,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <link rel="icon" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#0b0b14" />
     <meta name="description" content="Browse and collect Hololive membership emotes to build custom sticker packs." />
     <title>Holo Emotes</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,6 +47,22 @@
     --radius-lg: 16px;
     --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     --transition: 180ms ease;
+    --glass-bg: rgba(18, 18, 31, 0.78);
+    --glass-bg-strong: rgba(20, 20, 36, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-strong: rgba(255, 255, 255, 0.14);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    --glass-blur: blur(20px) saturate(140%);
+    --surface-tint: rgba(255, 255, 255, 0.03);
+    --surface-tint-hover: rgba(255, 255, 255, 0.06);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    :root {
+      --glass-bg: var(--bg-surface);
+      --glass-bg-strong: var(--bg-elevated);
+      --glass-blur: none;
+    }
   }
 
   html, body {
@@ -57,6 +74,23 @@
     font-size: 15px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    position: relative;
+    isolation: isolate;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(70% 40% at 20% 0%, rgba(51, 204, 255, 0.11) 0%, transparent 70%),
+      radial-gradient(60% 40% at 80% 100%, rgba(204, 102, 255, 0.08) 0%, transparent 70%),
+      var(--bg-base);
   }
 
   button {

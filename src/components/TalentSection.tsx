@@ -130,23 +130,21 @@ export default function TalentSection({
 
       <style>{`
         .talent-section {
-          background: var(--bg-base);
-          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
-          overflow: hidden;
         }
 
         .talent-header {
           display: flex;
           align-items: center;
           gap: 7px;
-          padding: 0 10px 0 0;
+          padding: 0 8px 0 0;
+          border-radius: var(--radius-sm);
           color: var(--text-secondary);
           transition: background var(--transition), color var(--transition);
         }
 
         .talent-header:hover {
-          background: var(--bg-elevated);
+          background: var(--surface-tint-hover);
           color: var(--text-primary);
         }
 
@@ -245,10 +243,10 @@ export default function TalentSection({
           gap: 4px;
           font-size: 11px;
           font-weight: 500;
-          padding: 3px 8px;
-          border-radius: 5px;
-          border: 1px solid var(--border);
-          background: var(--bg-elevated);
+          padding: 4px 9px;
+          border-radius: 999px;
+          border: 1px solid transparent;
+          background: transparent;
           color: var(--text-muted);
           transition: all var(--transition);
           white-space: nowrap;
@@ -262,7 +260,7 @@ export default function TalentSection({
         }
 
         .select-all-btn.deselect {
-          border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+          border-color: color-mix(in srgb, var(--accent) 35%, transparent);
           color: var(--accent);
           background: var(--accent-glow);
         }
@@ -274,13 +272,12 @@ export default function TalentSection({
         }
 
         .talent-body {
-          border-top: 1px solid var(--border);
-          padding: 6px;
+          padding: 2px 2px 10px 6px;
         }
 
         @media (min-width: 640px) {
           .talent-body {
-            padding: 10px;
+            padding: 4px 4px 14px 10px;
           }
         }
       `}</style>

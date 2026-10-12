@@ -268,7 +268,7 @@ export default function EmoteBrowser({ data }: Props) {
           max-width: 1600px;
           width: 100%;
           margin: 0 auto;
-          padding: 12px 12px 120px;
+          padding: 12px 12px 0;
           display: flex;
           flex-direction: column;
           gap: 8px;
@@ -286,7 +286,7 @@ export default function EmoteBrowser({ data }: Props) {
           }
 
           .app-main {
-            padding: 16px 24px 120px;
+            padding: 16px 24px 0;
           }
         }
 
@@ -322,7 +322,8 @@ export default function EmoteBrowser({ data }: Props) {
           max-width: 1600px;
           width: 100%;
           margin: 0 auto;
-          padding: 16px 12px 120px;
+          padding: 24px 12px calc(var(--selection-bar-height, 0px) + 24px);
+          transition: padding-bottom 220ms ease;
           text-align: center;
           font-size: 12px;
         }

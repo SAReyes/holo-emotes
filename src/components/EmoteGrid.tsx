@@ -62,8 +62,8 @@ export default function EmoteGrid({
             <div class="emote-img-wrap">
               <EmoteImg url={url} alt={name} loading="lazy" class="emote-img" />
               {selected && (
-                <div class="selected-overlay">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <div class="selected-badge">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
@@ -88,7 +88,14 @@ export default function EmoteGrid({
         .emote-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-          gap: 6px;
+          gap: 4px;
+        }
+
+        @media (min-width: 640px) {
+          .emote-grid {
+            grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+            gap: 6px;
+          }
         }
 
         .emote-card {
@@ -96,30 +103,29 @@ export default function EmoteGrid({
           flex-direction: column;
           align-items: center;
           gap: 4px;
-          padding: 6px 4px;
-          border-radius: var(--radius-sm);
-          border: 1.5px solid var(--border);
-          background: var(--bg-elevated);
+          padding: 8px 4px 6px;
+          border-radius: var(--radius-md);
+          border: none;
+          background: transparent;
+          box-shadow: 0 0 0 1.5px transparent;
           cursor: pointer;
-          transition: all var(--transition);
+          transition: background var(--transition), box-shadow var(--transition), color var(--transition), transform var(--transition);
           position: relative;
-          color: var(--text-secondary);
+          color: var(--text-muted);
         }
 
         @media (hover: hover) {
           .emote-card:hover {
-            border-color: var(--border-light);
-            background: var(--bg-hover);
+            background: var(--surface-tint-hover);
             color: var(--text-primary);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
           }
         }
 
         .emote-card.selected {
-          border-color: var(--accent);
           background: var(--accent-glow);
-          box-shadow: 0 0 0 1px var(--accent-dim), 0 0 12px rgba(51, 204, 255, 0.1);
+          box-shadow: 0 0 0 1.5px var(--accent);
+          color: var(--text-primary);
         }
 
         .emote-card:active {
@@ -128,13 +134,13 @@ export default function EmoteGrid({
         }
 
         .emote-card.selected:hover {
-          box-shadow: 0 0 0 1px var(--accent), 0 4px 16px rgba(51, 204, 255, 0.2);
+          box-shadow: 0 0 0 1.5px var(--accent-hover), 0 6px 18px rgba(51, 204, 255, 0.18);
         }
 
         .emote-img-wrap {
           position: relative;
-          width: 52px;
-          height: 52px;
+          width: 56px;
+          height: 56px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -142,28 +148,46 @@ export default function EmoteGrid({
         }
 
         .emote-img {
-          max-width: 48px;
-          max-height: 48px;
+          max-width: 56px;
+          max-height: 56px;
           width: auto;
           height: auto;
           object-fit: contain;
           image-rendering: -webkit-optimize-contrast;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
         }
 
-        .selected-overlay {
+        @media (min-width: 640px) {
+          .emote-img-wrap {
+            width: 64px;
+            height: 64px;
+          }
+
+          .emote-img {
+            max-width: 64px;
+            max-height: 64px;
+          }
+        }
+
+        .selected-badge {
           position: absolute;
-          inset: 0;
-          background: rgba(51, 204, 255, 0.25);
-          border-radius: 4px;
+          top: -4px;
+          right: -4px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: var(--accent);
+          border: 2px solid var(--bg-base);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--accent);
+          color: #000;
           animation: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1.3);
         }
 
         .emote-name {
-          font-size: 9px;
+          font-size: 10px;
+          font-weight: 500;
           text-align: center;
           line-height: 1.2;
           word-break: break-word;
@@ -178,11 +202,13 @@ export default function EmoteGrid({
         .emote-tooltip {
           position: fixed;
           transform: translate(-50%, calc(-100% - 10px));
-          background: var(--bg-elevated);
-          border: 1px solid var(--border-light);
+          background: var(--glass-bg-strong);
+          border: 1px solid var(--glass-border-strong);
           border-radius: var(--radius-md);
           padding: 10px;
-          box-shadow: var(--shadow);
+          box-shadow: var(--glass-highlight), var(--shadow);
+          -webkit-backdrop-filter: var(--glass-blur);
+          backdrop-filter: var(--glass-blur);
           pointer-events: none;
           z-index: 200;
           display: flex;
