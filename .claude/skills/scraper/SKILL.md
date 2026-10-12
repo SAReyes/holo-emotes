@@ -48,12 +48,27 @@ Defined in `src/types.ts` and mirrored in the script:
 | `TalentMap` | talent name | `EmoteMap` |
 | `GenerationMap` | generation name | `TalentMap` |
 | `BranchMap` | branch name | `GenerationMap` |
+| `TalentInfoMap` | talent name | `{ page, oshiMark, fanName }` |
 
 Each branch page is walked as a flat sequence of `h2`, `h3`, and `img` in
 document order. An `h2` starts a generation, an `h3` starts a talent, and
 every `img` after an `h3` is an emote under it. Images before the first
 talent heading are ignored. A generation that never appears is `Ungrouped`.
 The first occurrence of a name wins within a talent.
+
+## Talent pages
+
+Every `h3` on a branch page links to the talent's own article. With `-o`,
+after the branches are written, the script fetches each linked article once
+and reads two infobox rows: the `th` containing `Oshi Mark` and the one
+containing `Fan Name`, each paired with the `td` beside it. The result is
+`public/emotes/talents.json`, keyed by the talent name as it appears in the
+branch JSON. `oshiMark` is stored as the wiki gives it, which may be more
+than one emoji (`🍑🥟`, `🐻💿`); consumers pick what they need. `fanName`
+takes the line marked `(current)` when the cell lists several, otherwise
+the last line, with citation markers like `[8]` removed. A talent whose
+page has no oshi mark row is skipped with a message. Graduated talents still
+listed on a branch page are included, since their emotes are.
 
 ## Parsing an image
 
@@ -93,8 +108,8 @@ local thumbnail and falls back to the wiki URL if the file is missing.
 
 1. Run `pnpm fetch-emotes -o public/emotes`. Without `-o` the script prompts
    for a branch and prints JSON to stdout instead of writing files.
-2. Read `git diff --stat public/emotes`. New talents, renamed emotes, and
-   removed thumbnails all show here. A large unexpected diff means the page
+2. Read `git diff --stat public/emotes`. New talents, renamed emotes,
+   changed oshi marks, and removed thumbnails all show here. A large unexpected diff means the page
    structure changed, not the emotes.
 3. If you changed parsing, add a case to the relevant test with real markup
    or a real URL, not an invented one.

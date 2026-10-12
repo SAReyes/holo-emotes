@@ -12,6 +12,14 @@ type EmoteMap      = Record<string, string>;
 type TalentMap     = Record<string, EmoteMap>;
 type GenerationMap = Record<string, TalentMap>;
 type BranchMap     = Record<string, GenerationMap>;
+type TalentPages   = Record<string, string>;
+
+interface TalentInfo {
+  page: string;
+  oshiMark: string;
+  fanName: string;
+}
+type TalentInfoMap = Record<string, TalentInfo>;
 
 async function fetchArticle(url: string): Promise<HTMLElement> {
   await assertAllowed(url);
@@ -49,9 +57,10 @@ async function fetchBranches(): Promise<Branch[]> {
   return results;
 }
 
-async function buildBranchData(url: string): Promise<GenerationMap> {
+async function buildBranchData(url: string): Promise<{ generations: GenerationMap; pages: TalentPages }> {
   const body = await fetchArticle(url);
   const result: GenerationMap = {};
+  const pages: TalentPages = {};
   let generation: string | null = null;
   let talent: string | null = null;
 
@@ -61,6 +70,8 @@ async function buildBranchData(url: string): Promise<GenerationMap> {
       talent = null;
     } else if (el.tagName === "H3") {
       talent = headingText(el);
+      const href = el.querySelector('a[href^="/wiki/"]')?.getAttribute("href");
+      if (href && !href.includes("?")) pages[talent] = BASE_URL + href;
     } else if (talent) {
       const emote = parseEmote(el);
       if (!emote) continue;
@@ -70,6 +81,51 @@ async function buildBranchData(url: string): Promise<GenerationMap> {
     }
   }
 
+  return { generations: result, pages };
+}
+
+function infoboxCell(body: HTMLElement, label: string): HTMLElement | null {
+  for (const th of body.querySelectorAll("th")) {
+    if (!th.text.replace(/\s+/g, " ").includes(label)) continue;
+    const td = th.nextElementSibling;
+    if (td && td.tagName === "TD") return td;
+  }
+  return null;
+}
+
+function cellLines(td: HTMLElement): string[] {
+  return td.innerHTML
+    .split(/<br\s*\/?>/i)
+    .map((part) => parseHtml(part).text.replace(/\[\d+\]/g, "").replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
+
+async function fetchTalentInfo(page: string): Promise<Omit<TalentInfo, "page"> | null> {
+  const body = await fetchArticle(page);
+  const mark = infoboxCell(body, "Oshi Mark");
+  if (!mark) return null;
+  const fan = infoboxCell(body, "Fan Name");
+  const fanLines = fan ? cellLines(fan) : [];
+  const current = fanLines.find((l) => /\(current\)/i.test(l)) ?? fanLines[fanLines.length - 1] ?? "";
+  return {
+    oshiMark: cellLines(mark).join(" ").trim(),
+    fanName: current.replace(/\((current|former)\)/gi, "").trim(),
+  };
+}
+
+async function fetchTalents(pages: TalentPages): Promise<TalentInfoMap> {
+  const result: TalentInfoMap = {};
+  const names = Object.keys(pages);
+  console.error(`Fetching ${names.length} talent pages…`);
+  for (const name of names) {
+    const page = pages[name]!;
+    const info = await fetchTalentInfo(page);
+    if (!info) {
+      console.error(`  no oshi mark on ${page}`);
+      continue;
+    }
+    result[name] = { page, ...info };
+  }
   return result;
 }
 
@@ -211,10 +267,12 @@ async function main() {
   }
 
   const result: BranchMap = {};
+  const pages: TalentPages = {};
 
   for (const branch of selected) {
     console.error(`Fetching data for ${branch.name}…`);
-    const data = await buildBranchData(branch.url);
+    const { generations: data, pages: branchPages } = await buildBranchData(branch.url);
+    Object.assign(pages, branchPages);
 
     if (Object.keys(data).length === 0) {
       console.error(`  → skipped (no emotes)`);
@@ -232,6 +290,9 @@ async function main() {
   }
 
   if (outputPath) {
+    const talents = await fetchTalents(pages);
+    writeFileSync(`${outputPath}/talents.json`, JSON.stringify(talents, null, 2) + "\n", "utf-8");
+    console.error(`  → ${outputPath}/talents.json (${Object.keys(talents).length} talents)`);
     await syncThumbs(result, outputPath);
   } else {
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");

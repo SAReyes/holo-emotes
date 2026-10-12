@@ -6,7 +6,7 @@ import EmoteBrowser from '../components/EmoteBrowser';
 import type { BranchData, GenerationMap } from '../types';
 
 const emotesDir = join(process.cwd(), 'public', 'emotes');
-const files = readdirSync(emotesDir).filter((f) => f.endsWith('.json'));
+const files = readdirSync(emotesDir).filter((f) => f.endsWith('.json') && f !== 'talents.json');
 
 const branches: BranchData[] = files
   .map((file) => {

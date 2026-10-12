@@ -1,0 +1,467 @@
+{
+  "Tokino Sora": {
+    "page": "https://hololive.wiki/wiki/Tokino_Sora",
+    "oshiMark": "🐻💿",
+    "fanName": "Sora-tomo (そらとも), or Sora's Pals"
+  },
+  "Roboco": {
+    "page": "https://hololive.wiki/wiki/Roboco",
+    "oshiMark": "🤖",
+    "fanName": "\"Robot Circle,\" or \"Robotics Club\""
+  },
+  "AZKi": {
+    "page": "https://hololive.wiki/wiki/AZKi",
+    "oshiMark": "⚒️",
+    "fanName": "Pioneer, or Kaitakusha (開拓者)"
+  },
+  "Sakura Miko": {
+    "page": "https://hololive.wiki/wiki/Sakura_Miko",
+    "oshiMark": "🌸",
+    "fanName": "35P, read as \"Miko-P\" (みこぴー)"
+  },
+  "Hoshimachi Suisei": {
+    "page": "https://hololive.wiki/wiki/Hoshimachi_Suisei",
+    "oshiMark": "☄️",
+    "fanName": "Kometomo (formerly)"
+  },
+  "Shirakami Fubuki": {
+    "page": "https://hololive.wiki/wiki/Shirakami_Fubuki",
+    "oshiMark": "🌽",
+    "fanName": "Friends"
+  },
+  "Natsuiro Matsuri": {
+    "page": "https://hololive.wiki/wiki/Natsuiro_Matsuri",
+    "oshiMark": "🏮",
+    "fanName": "by squirrels (\"risu\", in Japanese)"
+  },
+  "Aki Rosenthal": {
+    "page": "https://hololive.wiki/wiki/Aki_Rosenthal",
+    "oshiMark": "🍎",
+    "fanName": "(ロゼ隊 Rose-tai)"
+  },
+  "Akai Haato": {
+    "page": "https://hololive.wiki/wiki/Akai_Haato",
+    "oshiMark": "or🔥 ❣️/(Formerly)",
+    "fanName": "Haaton (はあとん)"
+  },
+  "Minato Aqua": {
+    "page": "https://hololive.wiki/wiki/Minato_Aqua",
+    "oshiMark": "⚓",
+    "fanName": "Aqua Crew (あくあクルー)"
+  },
+  "Murasaki Shion": {
+    "page": "https://hololive.wiki/wiki/Murasaki_Shion",
+    "oshiMark": "🌙",
+    "fanName": "Shio-ldren / Shiokko (塩っ子)"
+  },
+  "Nakiri Ayame": {
+    "page": "https://hololive.wiki/wiki/Nakiri_Ayame",
+    "oshiMark": "😈",
+    "fanName": "Nakiri Gang / Nakiri-gumi (百鬼組)"
+  },
+  "Yuzuki Choco": {
+    "page": "https://hololive.wiki/wiki/Yuzuki_Choco",
+    "oshiMark": "💋 🍫",
+    "fanName": "Choco Mate (ちょこめいと)"
+  },
+  "Oozora Subaru": {
+    "page": "https://hololive.wiki/wiki/Oozora_Subaru",
+    "oshiMark": "🚑",
+    "fanName": "Suba-tomo (スバ友) / Subafriends"
+  },
+  "Ookami Mio": {
+    "page": "https://hololive.wiki/wiki/Ookami_Mio",
+    "oshiMark": "🌲",
+    "fanName": "(ミオファ (みおーんファミリー))"
+  },
+  "Nekomata Okayu": {
+    "page": "https://hololive.wiki/wiki/Nekomata_Okayu",
+    "oshiMark": "🍙",
+    "fanName": "Onigiris / Onigiryaa (おにぎりゃー)"
+  },
+  "Inugami Korone": {
+    "page": "https://hololive.wiki/wiki/Inugami_Korone",
+    "oshiMark": "🥐",
+    "fanName": "Koronesuki (ころねすきー)"
+  },
+  "Usada Pekora": {
+    "page": "https://hololive.wiki/wiki/Usada_Pekora",
+    "oshiMark": "👯‍♀️",
+    "fanName": "(野うさぎ同盟 Nousagi domei)"
+  },
+  "Shiranui Flare": {
+    "page": "https://hololive.wiki/wiki/Shiranui_Flare",
+    "oshiMark": "🔥",
+    "fanName": "Elfriend (エルフレンド)"
+  },
+  "Shirogane Noel": {
+    "page": "https://hololive.wiki/wiki/Shirogane_Noel",
+    "oshiMark": "⚔️",
+    "fanName": "(白銀騎士団)"
+  },
+  "Houshou Marine": {
+    "page": "https://hololive.wiki/wiki/Houshou_Marine",
+    "oshiMark": "🏴‍☠️",
+    "fanName": "宝鐘の一味)"
+  },
+  "Amane Kanata": {
+    "page": "https://hololive.wiki/wiki/Amane_Kanata",
+    "oshiMark": "💫",
+    "fanName": "Hei-min (へい民)"
+  },
+  "Tsunomaki Watame": {
+    "page": "https://hololive.wiki/wiki/Tsunomaki_Watame",
+    "oshiMark": "🐏",
+    "fanName": "Wata-mates (わためいと)"
+  },
+  "Tokoyami Towa": {
+    "page": "https://hololive.wiki/wiki/Tokoyami_Towa",
+    "oshiMark": "👾",
+    "fanName": "TowaFam"
+  },
+  "Himemori Luna": {
+    "page": "https://hololive.wiki/wiki/Himemori_Luna",
+    "oshiMark": "🍬",
+    "fanName": "Lu-knight (ルーナイト)"
+  },
+  "Yukihana Lamy": {
+    "page": "https://hololive.wiki/wiki/Yukihana_Lamy",
+    "oshiMark": "☃️",
+    "fanName": "Yukimin (雪民)"
+  },
+  "Momosuzu Nene": {
+    "page": "https://hololive.wiki/wiki/Momosuzu_Nene",
+    "oshiMark": "🍑🥟",
+    "fanName": "Husbands (or Wives)"
+  },
+  "Shishiro Botan": {
+    "page": "https://hololive.wiki/wiki/Shishiro_Botan",
+    "oshiMark": "♌",
+    "fanName": "SSRB"
+  },
+  "Omaru Polka": {
+    "page": "https://hololive.wiki/wiki/Omaru_Polka",
+    "oshiMark": "🎪",
+    "fanName": "Omaru Troupe / Omaru-za (おまる座)"
+  },
+  "La+ Darknesss": {
+    "page": "https://hololive.wiki/wiki/La%2B_Darknesss",
+    "oshiMark": "🛸 💜",
+    "fanName": "Plusmate (ぷらすめいと)"
+  },
+  "Takane Lui": {
+    "page": "https://hololive.wiki/wiki/Takane_Lui",
+    "oshiMark": "🥀",
+    "fanName": "Lui-tomo (ルイ友)"
+  },
+  "Hakui Koyori": {
+    "page": "https://hololive.wiki/wiki/Hakui_Koyori",
+    "oshiMark": "🧪",
+    "fanName": "Koyori's assistants (こよりの助手くん)"
+  },
+  "Sakamata Chloe": {
+    "page": "https://hololive.wiki/wiki/Sakamata_Chloe",
+    "oshiMark": "🎣",
+    "fanName": "(Shiikuin-san, 飼育員さん)"
+  },
+  "Kazama Iroha": {
+    "page": "https://hololive.wiki/wiki/Kazama_Iroha",
+    "oshiMark": "🍃",
+    "fanName": "Kazama-tai(風真隊)"
+  },
+  "Ayunda Risu": {
+    "page": "https://hololive.wiki/wiki/Ayunda_Risu",
+    "oshiMark": "🐿️",
+    "fanName": "Risuners"
+  },
+  "Moona Hoshinova": {
+    "page": "https://hololive.wiki/wiki/Moona_Hoshinova",
+    "oshiMark": "🔮",
+    "fanName": "Moonafic"
+  },
+  "Airani Iofifteen": {
+    "page": "https://hololive.wiki/wiki/Airani_Iofifteen",
+    "oshiMark": "🎨",
+    "fanName": "IOFORIA"
+  },
+  "Kureiji Ollie": {
+    "page": "https://hololive.wiki/wiki/Kureiji_Ollie",
+    "oshiMark": "🧟‍♀️",
+    "fanName": "Zomrade"
+  },
+  "Anya Melfissa": {
+    "page": "https://hololive.wiki/wiki/Anya_Melfissa",
+    "oshiMark": "🍂",
+    "fanName": "Melfriends"
+  },
+  "Pavolia Reine": {
+    "page": "https://hololive.wiki/wiki/Pavolia_Reine",
+    "oshiMark": "🦚",
+    "fanName": "Merakyats"
+  },
+  "Vestia Zeta": {
+    "page": "https://hololive.wiki/wiki/Vestia_Zeta",
+    "oshiMark": "📜",
+    "fanName": "Zecretary"
+  },
+  "Kaela Kovalskia": {
+    "page": "https://hololive.wiki/wiki/Kaela_Kovalskia",
+    "oshiMark": "🔨",
+    "fanName": "Pemaloe"
+  },
+  "Kobo Kanaeru": {
+    "page": "https://hololive.wiki/wiki/Kobo_Kanaeru",
+    "oshiMark": "☔",
+    "fanName": "Kobokerz, Cebokerz, Kobolonimbus"
+  },
+  "Mori Calliope": {
+    "page": "https://hololive.wiki/wiki/Mori_Calliope",
+    "oshiMark": "💀",
+    "fanName": "Dead Beats (デッドビーツ)"
+  },
+  "Takanashi Kiara": {
+    "page": "https://hololive.wiki/wiki/Takanashi_Kiara",
+    "oshiMark": "🐔",
+    "fanName": "KFP"
+  },
+  "Ninomae Ina'nis": {
+    "page": "https://hololive.wiki/wiki/Ninomae_Ina%27nis",
+    "oshiMark": "🐙",
+    "fanName": "Tentacult / Takodachis"
+  },
+  "Gawr Gura": {
+    "page": "https://hololive.wiki/wiki/Gawr_Gura",
+    "oshiMark": "🔱",
+    "fanName": "Chumbuds"
+  },
+  "Watson Amelia": {
+    "page": "https://hololive.wiki/wiki/Watson_Amelia",
+    "oshiMark": "🔎 🔍",
+    "fanName": "Teamates"
+  },
+  "IRyS": {
+    "page": "https://hololive.wiki/wiki/IRyS",
+    "oshiMark": "💎",
+    "fanName": "Irystocrats"
+  },
+  "Ceres Fauna": {
+    "page": "https://hololive.wiki/wiki/Ceres_Fauna",
+    "oshiMark": "🌿",
+    "fanName": "Saplings"
+  },
+  "Ouro Kronii": {
+    "page": "https://hololive.wiki/wiki/Ouro_Kronii",
+    "oshiMark": "⏳️",
+    "fanName": "Kronies"
+  },
+  "Nanashi Mumei": {
+    "page": "https://hololive.wiki/wiki/Nanashi_Mumei",
+    "oshiMark": "🪶",
+    "fanName": "Hoomans"
+  },
+  "Hakos Baelz": {
+    "page": "https://hololive.wiki/wiki/Hakos_Baelz",
+    "oshiMark": "🎲",
+    "fanName": "Brats / Baerats"
+  },
+  "Shiori Novella": {
+    "page": "https://hololive.wiki/wiki/Shiori_Novella",
+    "oshiMark": "👁️‍🗨️",
+    "fanName": "Novelites"
+  },
+  "Koseki Bijou": {
+    "page": "https://hololive.wiki/wiki/Koseki_Bijou",
+    "oshiMark": "🗿",
+    "fanName": "Pebbles"
+  },
+  "Nerissa Ravencroft": {
+    "page": "https://hololive.wiki/wiki/Nerissa_Ravencroft",
+    "oshiMark": "🎼",
+    "fanName": "Jailbirds"
+  },
+  "Fuwawa & Mococo Abyssgard": {
+    "page": "https://hololive.wiki/wiki/FUWAMOCO",
+    "oshiMark": "🐾",
+    "fanName": "Ruffians"
+  },
+  "Elizabeth Rose Bloodflame": {
+    "page": "https://hololive.wiki/wiki/Elizabeth_Rose_Bloodflame",
+    "oshiMark": "💄",
+    "fanName": "Rosarians"
+  },
+  "Gigi Murin": {
+    "page": "https://hololive.wiki/wiki/Gigi_Murin",
+    "oshiMark": "👧",
+    "fanName": "grems"
+  },
+  "Cecilia Immergreen": {
+    "page": "https://hololive.wiki/wiki/Cecilia_Immergreen",
+    "oshiMark": "🍵",
+    "fanName": "Otomos"
+  },
+  "Raora Panthera": {
+    "page": "https://hololive.wiki/wiki/Raora_Panthera",
+    "oshiMark": "🐱",
+    "fanName": "(Plural: Chattini)"
+  },
+  "Hiodoshi Ao": {
+    "page": "https://hololive.wiki/wiki/Hiodoshi_Ao",
+    "oshiMark": "🖋️",
+    "fanName": "Ao-tomo (読者) or Hime (火女) / Hyottoko (火男)"
+  },
+  "Otonose Kanade": {
+    "page": "https://hololive.wiki/wiki/Otonose_Kanade",
+    "oshiMark": "🎹✨",
+    "fanName": "Omaera (おまえら)"
+  },
+  "Ichijou Ririka": {
+    "page": "https://hololive.wiki/wiki/Ichijou_Ririka",
+    "oshiMark": "🌃",
+    "fanName": "Hishominarai (秘書見習い)"
+  },
+  "Juufuutei Raden": {
+    "page": "https://hololive.wiki/wiki/Juufuutei_Raden",
+    "oshiMark": "🐚",
+    "fanName": "Dendoshi (でん同士)"
+  },
+  "Todoroki Hajime": {
+    "page": "https://hololive.wiki/wiki/Todoroki_Hajime",
+    "oshiMark": "🐧⚡️",
+    "fanName": ""
+  },
+  "Isaki Riona": {
+    "page": "https://hololive.wiki/wiki/Isaki_Riona",
+    "oshiMark": "🎤👑",
+    "fanName": ""
+  },
+  "Koganei Niko": {
+    "page": "https://hololive.wiki/wiki/Koganei_Niko",
+    "oshiMark": "☺️🐅",
+    "fanName": "25P, read as \"Niko-P\" (にこぴー)"
+  },
+  "Mizumiya Su": {
+    "page": "https://hololive.wiki/wiki/Mizumiya_Su",
+    "oshiMark": "💬🔁💙",
+    "fanName": "SuuLis"
+  },
+  "Rindo Chihaya": {
+    "page": "https://hololive.wiki/wiki/Rindo_Chihaya",
+    "oshiMark": "🎧🔧",
+    "fanName": "Nikku (ニック), short for mechanic (メカニック)"
+  },
+  "Kikirara Vivi": {
+    "page": "https://hololive.wiki/wiki/Kikirara_Vivi",
+    "oshiMark": "💅✨",
+    "fanName": "Vivid (ヴィヴィッド)"
+  },
+  "Hanasaki Miyabi": {
+    "page": "https://hololive.wiki/wiki/Hanasaki_Miyabi",
+    "oshiMark": "🌺",
+    "fanName": "Hanami gumi (花見組)"
+  },
+  "Kanade Izuru": {
+    "page": "https://hololive.wiki/wiki/Kanade_Izuru",
+    "oshiMark": "🎸",
+    "fanName": ""
+  },
+  "Arurandeisu": {
+    "page": "https://hololive.wiki/wiki/Arurandeisu",
+    "oshiMark": "🍕",
+    "fanName": "Familiaran (ファミリアラン)"
+  },
+  "Rikka": {
+    "page": "https://hololive.wiki/wiki/Rikkaroid",
+    "oshiMark": "⚙️",
+    "fanName": "Tuner (調りつ師)"
+  },
+  "Astel Leda": {
+    "page": "https://hololive.wiki/wiki/Astel_Leda",
+    "oshiMark": "🎭",
+    "fanName": "Astellas (アステラー)"
+  },
+  "Kishido Temma": {
+    "page": "https://hololive.wiki/wiki/Kishido_Temma",
+    "oshiMark": "🦔💨",
+    "fanName": "Kishi-men (岸メン)"
+  },
+  "Yukoku Roberu": {
+    "page": "https://hololive.wiki/wiki/Yukoku_Roberu",
+    "oshiMark": "🍷",
+    "fanName": "Regulars (常連さん)"
+  },
+  "Kageyama Shien": {
+    "page": "https://hololive.wiki/wiki/Kageyama_Shien",
+    "oshiMark": "🟣",
+    "fanName": "Shien-gumi (シエン組)"
+  },
+  "Aragami Oga": {
+    "page": "https://hololive.wiki/wiki/Aragami_Oga",
+    "oshiMark": "🐃",
+    "fanName": "Omae-san (オマエさん)"
+  },
+  "Yatogami Fuma": {
+    "page": "https://hololive.wiki/wiki/Yatogami_Fuma",
+    "oshiMark": "🦝",
+    "fanName": "Tsukibito (憑き人)"
+  },
+  "Utsugi Uyu": {
+    "page": "https://hololive.wiki/wiki/Utsugi_Uyu",
+    "oshiMark": "🃏",
+    "fanName": "Fantom"
+  },
+  "Minase Rio": {
+    "page": "https://hololive.wiki/wiki/Minase_Rio",
+    "oshiMark": "🕯️",
+    "fanName": "RIOFAM"
+  },
+  "Regis Altare": {
+    "page": "https://hololive.wiki/wiki/Regis_Altare",
+    "oshiMark": "🎇",
+    "fanName": "Altventurers"
+  },
+  "Axel Syrios": {
+    "page": "https://hololive.wiki/wiki/Axel_Syrios",
+    "oshiMark": "⛓️",
+    "fanName": "Axelotls"
+  },
+  "Gavis Bettel": {
+    "page": "https://hololive.wiki/wiki/Gavis_Bettel",
+    "oshiMark": "🎩",
+    "fanName": "Bettelion"
+  },
+  "Machina X Flayon": {
+    "page": "https://hololive.wiki/wiki/Machina_X_Flayon",
+    "oshiMark": "🪫",
+    "fanName": "Machiroons"
+  },
+  "Banzoin Hakka": {
+    "page": "https://hololive.wiki/wiki/Banzoin_Hakka",
+    "oshiMark": "🔅",
+    "fanName": "Hakkitos"
+  },
+  "Josuiji Shinri": {
+    "page": "https://hololive.wiki/wiki/Josuiji_Shinri",
+    "oshiMark": "🏹",
+    "fanName": "Koipanions (individuals) Koillective (the whole fanbase)"
+  },
+  "Jurard T Rexford": {
+    "page": "https://hololive.wiki/wiki/Jurard_T_Rexford",
+    "oshiMark": "🦖",
+    "fanName": ""
+  },
+  "Goldbullet": {
+    "page": "https://hololive.wiki/wiki/Goldbullet",
+    "oshiMark": "🦅",
+    "fanName": "Bubbies"
+  },
+  "Octavio": {
+    "page": "https://hololive.wiki/wiki/Octavio",
+    "oshiMark": "ထ♾️",
+    "fanName": ""
+  },
+  "Crimzon Ruze": {
+    "page": "https://hololive.wiki/wiki/Crimzon_Ruze",
+    "oshiMark": "💢",
+    "fanName": "Ruzaders"
+  }
+}
