@@ -72,7 +72,7 @@ function extensionFromUrl(url: string): string {
   }
 }
 
-function uniqueZipEntryName(
+export function uniqueZipEntryName(
   base: string,
   ext: string,
   used: Set<string>,
@@ -91,7 +91,7 @@ function uniqueZipEntryName(
   return name;
 }
 
-function triggerDownload(blob: Blob, filename: string): void {
+export function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -103,7 +103,7 @@ function triggerDownload(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-async function fetchEmoteWithOptionalFallback(
+export async function fetchEmoteWithOptionalFallback(
   primaryUrl: string,
   fallbackUrl: string | null,
   emoteLabel: string,

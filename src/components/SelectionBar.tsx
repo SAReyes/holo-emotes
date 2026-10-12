@@ -13,8 +13,65 @@ import {
   type ResolutionMode,
 } from '../export';
 import { getDefaultPrefixes, hasTalentTransform, type NamingConfig } from '../emote-naming';
+import {
+  createStickerPack,
+  detectUserId,
+  exportTelegramZip,
+  fetchBotUsername,
+  verifyPacks,
+  PACK_STICKER_LIMIT,
+  PackExistsError,
+  type CreatedPack,
+  type EmojiAssignment,
+  type ExistingPack,
+  type ExistingPackMode,
+  type TelegramProgress,
+} from '../telegram';
+import { isSingleEmoji, suggestEmoji } from '../telegram-emoji';
 
 type SlackExportModalTab = 'image' | 'naming';
+type TelegramStep = 1 | 2 | 3;
+
+const TELEGRAM_STORAGE_KEY = 'holo-emotes.telegram';
+
+interface KnownPack {
+  bot: string;
+  name: string;
+  title: string;
+  count: number;
+}
+
+interface TelegramStored {
+  botToken?: string;
+  userId?: string;
+  packs?: KnownPack[];
+}
+
+function rememberPack(stored: TelegramStored, pack: CreatedPack): TelegramStored {
+  const packs = (stored.packs ?? []).filter((p) => p.name !== pack.name);
+  packs.unshift({ bot: pack.botUsername, name: pack.name, title: pack.title, count: pack.count });
+  return { ...stored, packs };
+}
+
+function readTelegramStored(): TelegramStored {
+  try {
+    return JSON.parse(localStorage.getItem(TELEGRAM_STORAGE_KEY) ?? '{}') as TelegramStored;
+  } catch {
+    return {};
+  }
+}
+
+function writeTelegramStored(value: TelegramStored): void {
+  try {
+    localStorage.setItem(TELEGRAM_STORAGE_KEY, JSON.stringify(value));
+  } catch {
+    return;
+  }
+}
+
+function defaultPackBase(): string {
+  return `holo_emotes_${new Date().toISOString().slice(0, 10).replaceAll('-', '')}`;
+}
 
 interface Props {
   selected: Map<string, SelectedEmote>;
@@ -32,9 +89,25 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   const [namingSeparator, setNamingSeparator] = useState('-');
   const [namingPrefixes, setNamingPrefixes] = useState<Record<string, string>>({});
   const [slackExportTab, setSlackExportTab] = useState<SlackExportModalTab>('image');
+  const [telegramModalOpen, setTelegramModalOpen] = useState(false);
+  const [telegramStep, setTelegramStep] = useState<TelegramStep>(1);
+  const [emojiByKey, setEmojiByKey] = useState<Record<string, string>>({});
+  const [botToken, setBotToken] = useState('');
+  const [userId, setUserId] = useState('');
+  const [packBase, setPackBase] = useState(defaultPackBase);
+  const [packTitle, setPackTitle] = useState('Hololive emotes');
+  const [detectingUser, setDetectingUser] = useState(false);
+  const [telegramProgress, setTelegramProgress] = useState<TelegramProgress | null>(null);
+  const [telegramResult, setTelegramResult] = useState<CreatedPack | null>(null);
+  const [telegramError, setTelegramError] = useState<string | null>(null);
+  const [existingPack, setExistingPack] = useState<ExistingPack | null>(null);
+  const [knownPacks, setKnownPacks] = useState<KnownPack[]>([]);
+  const [botUsername, setBotUsername] = useState<string | null>(null);
+  const [checkingBot, setCheckingBot] = useState(false);
   const exportWrapRef = useRef<HTMLDivElement>(null);
   const exportMenu = usePresence(exportMenuOpen && !exporting, 140);
   const slackModal = usePresence(slackModalOpen, 160);
+  const telegramModal = usePresence(telegramModalOpen, 160);
   const count = selected.size;
   const visible = count > 0;
 
@@ -60,13 +133,38 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   }, [exportMenuOpen]);
 
   useEffect(() => {
-    if (!slackModalOpen) return;
+    if (!slackModalOpen && !telegramModalOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSlackModalOpen(false);
+      if (e.key !== 'Escape' || exporting) return;
+      setSlackModalOpen(false);
+      setTelegramModalOpen(false);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [slackModalOpen]);
+  }, [slackModalOpen, telegramModalOpen, exporting]);
+
+  useEffect(() => {
+    if (!telegramModalOpen) return;
+    const stored = readTelegramStored();
+    setBotToken(stored.botToken ?? '');
+    setUserId(stored.userId ?? '');
+    setKnownPacks(stored.packs ?? []);
+    setTelegramStep(1);
+    setTelegramProgress(null);
+    setTelegramResult(null);
+    setTelegramError(null);
+    setExistingPack(null);
+    setBotUsername(null);
+    setEmojiByKey((prev) => {
+      const next: Record<string, string> = {};
+      for (const [key, emote] of entries) next[key] = prev[key] ?? suggestEmoji(emote.talent, emote.name);
+      return next;
+    });
+  }, [telegramModalOpen]);
+
+  useEffect(() => {
+    if (telegramStep === 2 && botUsername === null && botToken.trim()) void handleCheckBot();
+  }, [telegramStep]);
 
   const prefixTalentNames = [...new Set(entries.map(([, e]) => e.talent))]
     .filter(hasTalentTransform)
@@ -125,6 +223,124 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
   function openSlackResolutionModal() {
     setExportMenuOpen(false);
     setSlackModalOpen(true);
+  }
+
+  function openTelegramModal() {
+    setExportMenuOpen(false);
+    setTelegramModalOpen(true);
+  }
+
+  function emojiAssignments(): EmojiAssignment[] {
+    return entries.map(([key, emote]) => ({ emote, emoji: (emojiByKey[key] ?? '').trim() }));
+  }
+
+  const invalidEmojiCount = entries.filter(([key]) => !isSingleEmoji(emojiByKey[key] ?? '')).length;
+  const userIdNumber = Number(userId.trim());
+  const packReady =
+    invalidEmojiCount === 0 &&
+    botToken.trim().length > 0 &&
+    Number.isInteger(userIdNumber) &&
+    userIdNumber > 0 &&
+    packBase.trim().length > 0 &&
+    packTitle.trim().length > 0 &&
+    count <= PACK_STICKER_LIMIT;
+
+  function resetEmojiSuggestions() {
+    const next: Record<string, string> = {};
+    for (const [key, emote] of entries) next[key] = suggestEmoji(emote.talent, emote.name);
+    setEmojiByKey(next);
+  }
+
+  async function handleDetectUserId() {
+    setDetectingUser(true);
+    setTelegramError(null);
+    try {
+      const id = await detectUserId(botToken.trim());
+      setUserId(String(id));
+    } catch (err) {
+      setTelegramError(err instanceof Error ? err.message : 'Could not detect the user ID');
+    } finally {
+      setDetectingUser(false);
+    }
+  }
+
+  async function handleTelegramCreate(existing?: ExistingPackMode) {
+    setExporting(true);
+    setTelegramError(null);
+    setExistingPack(null);
+    setTelegramStep(3);
+    setTelegramProgress({ phase: 'render', done: 0, total: count });
+    const stored = { ...readTelegramStored(), botToken: botToken.trim(), userId: userId.trim() };
+    writeTelegramStored(stored);
+    try {
+      const created = await createStickerPack(
+        emojiAssignments(),
+        { botToken: botToken.trim(), userId: userIdNumber, packBase: packBase.trim(), packTitle: packTitle.trim(), existing },
+        buildNamingConfig(),
+        setTelegramProgress,
+      );
+      const next = rememberPack(stored, created);
+      writeTelegramStored(next);
+      setKnownPacks(next.packs ?? []);
+      setTelegramResult(created);
+    } catch (err) {
+      if (err instanceof PackExistsError) setExistingPack(err.pack);
+      else setTelegramError(err instanceof Error ? err.message : 'Export failed');
+      setTelegramStep(2);
+    } finally {
+      setExporting(false);
+      setTelegramProgress(null);
+    }
+  }
+
+  async function handleCheckBot() {
+    const token = botToken.trim();
+    if (!token) return;
+    setCheckingBot(true);
+    setTelegramError(null);
+    try {
+      const username = await fetchBotUsername(token);
+      setBotUsername(username);
+      const stored = readTelegramStored();
+      const mine = (stored.packs ?? []).filter((p) => p.bot.toLowerCase() === username.toLowerCase());
+      const live = await verifyPacks(token, mine.map((p) => p.name));
+      const packs = (stored.packs ?? []).flatMap((p) => {
+        if (!(p.name in live)) return [p];
+        const current = live[p.name];
+        return current ? [{ ...p, title: current.title, count: current.count }] : [];
+      });
+      writeTelegramStored({ ...stored, botToken: token, packs });
+      setKnownPacks(packs);
+    } catch (err) {
+      setBotUsername(null);
+      setTelegramError(err instanceof Error ? err.message : 'Could not reach the bot');
+    } finally {
+      setCheckingBot(false);
+    }
+  }
+
+  const visiblePacks = botUsername
+    ? knownPacks.filter((p) => p.bot.toLowerCase() === botUsername.toLowerCase())
+    : knownPacks;
+
+  function usePack(pack: KnownPack) {
+    setPackBase(pack.name.replace(new RegExp(`_by_${pack.bot}$`, 'i'), ''));
+    setPackTitle(pack.title);
+    setExistingPack(null);
+    setTelegramError(null);
+  }
+
+  async function handleTelegramZip() {
+    setExporting(true);
+    setTelegramError(null);
+    try {
+      await exportTelegramZip(emojiAssignments(), buildNamingConfig());
+      setTelegramModalOpen(false);
+    } catch (err) {
+      setTelegramError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
   }
 
   if (!visible) {
@@ -226,21 +442,26 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
                   </span>
                   <span class="export-option-hint">ZIP for custom emoji</span>
                 </button>
+                <button
+                  type="button"
+                  class="export-option export-option-active"
+                  role="menuitem"
+                  onClick={openTelegramModal}
+                >
+                  <span class="export-option-label">
+                    <svg class="export-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.147-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                    </svg>
+                    Telegram
+                  </span>
+                  <span class="export-option-hint">Sticker pack via your bot</span>
+                </button>
                 <div class="export-option export-option-soon" role="menuitem" aria-disabled="true">
                   <span class="export-option-label">
                     <svg class="export-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                     </svg>
                     WhatsApp
-                  </span>
-                  <span class="export-badge">Coming soon</span>
-                </div>
-                <div class="export-option export-option-soon" role="menuitem" aria-disabled="true">
-                  <span class="export-option-label">
-                    <svg class="export-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.147-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-                    </svg>
-                    Telegram
                   </span>
                   <span class="export-badge">Coming soon</span>
                 </div>
@@ -499,6 +720,333 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
                 >
                   {exporting ? 'Exporting…' : 'Export'}
                 </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {typeof document !== 'undefined' &&
+        telegramModal.mounted &&
+        createPortal(
+          <div
+            class={`res-modal-overlay ${telegramModal.closing ? 'closing' : ''}`}
+            role="presentation"
+            onClick={() => !exporting && setTelegramModalOpen(false)}
+          >
+            <div
+              class={`res-modal ${telegramModal.closing ? 'closing' : ''}`}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="tg-modal-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 id="tg-modal-title" class="res-modal-title">
+                Export to Telegram
+              </h2>
+              <p class="res-modal-meta">
+                {count} sticker{count !== 1 ? 's' : ''} at 512px, as a Telegram sticker pack.
+              </p>
+
+              <ol class="tg-steps" aria-label="Export steps">
+                {([
+                  [1, 'Emoji'],
+                  [2, 'Bot and pack'],
+                  [3, 'Create'],
+                ] as const).map(([n, label]) => (
+                  <li
+                    key={n}
+                    class={`tg-step ${telegramStep === n ? 'current' : ''} ${telegramStep > n ? 'done' : ''}`}
+                    aria-current={telegramStep === n ? 'step' : undefined}
+                  >
+                    <span class="tg-step-num" aria-hidden="true">
+                      {telegramStep > n ? '✓' : n}
+                    </span>
+                    <span class="tg-step-label">{label}</span>
+                  </li>
+                ))}
+              </ol>
+
+              {telegramStep === 1 && (
+                <fieldset class="res-fieldset">
+                  <legend class="res-legend">Step 1: pick an emoji per emote</legend>
+                  <p class="res-separator-hint tg-intro">
+                    Telegram needs one standard emoji for each sticker. Suggestions are
+                    pre-filled from the emote name.{' '}
+                    <button type="button" class="tg-link-btn" onClick={resetEmojiSuggestions}>
+                      Reset suggestions
+                    </button>
+                  </p>
+                  <ul class="tg-emoji-list">
+                    {entries.map(([key, emote]) => {
+                      const value = emojiByKey[key] ?? '';
+                      const valid = isSingleEmoji(value);
+                      return (
+                        <li key={key} class="tg-emoji-row">
+                          <EmoteImg url={emote.url} alt="" class="tg-emoji-img" loading="lazy" />
+                          <span class="tg-emoji-name">
+                            <span class="tg-emoji-emote">{emote.name.replace(/^:\s*/, '').replace(/\s*:$/, '')}</span>
+                            <span class="tg-emoji-talent">{emote.talent}</span>
+                          </span>
+                          <input
+                            type="text"
+                            class={`tg-emoji-input ${valid ? '' : 'invalid'}`}
+                            value={value}
+                            aria-label={`Emoji for ${emote.name}`}
+                            aria-invalid={!valid}
+                            autoComplete="off"
+                            spellcheck={false}
+                            onInput={(e) => {
+                              const v = (e.target as HTMLInputElement).value;
+                              setEmojiByKey((m) => ({ ...m, [key]: v }));
+                            }}
+                          />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {invalidEmojiCount > 0 && (
+                    <p class="tg-error" role="alert">
+                      {invalidEmojiCount} emote{invalidEmojiCount !== 1 ? 's need' : ' needs'} a single emoji before you can continue.
+                    </p>
+                  )}
+                </fieldset>
+              )}
+
+              {telegramStep === 2 && (
+                <fieldset class="res-fieldset">
+                  <legend class="res-legend">Step 2: your bot and the pack</legend>
+                  <p class="res-separator-hint tg-intro">
+                    Create a bot with @BotFather, send it <code class="res-sep-code">/start</code>, and
+                    paste its token. The token is kept in this browser and sent only to api.telegram.org.
+                  </p>
+
+                  <div class="res-naming-prefix-label tg-field">
+                    <label class="res-naming-talent" htmlFor="tg-bot-token">
+                      Bot token{botUsername ? ` · @${botUsername}` : ''}
+                    </label>
+                    <span class="tg-inline">
+                      <input
+                        id="tg-bot-token"
+                        type="text"
+                        class="res-prefix-input"
+                        value={botToken}
+                        placeholder="123456789:AAH…"
+                        autoComplete="off"
+                        spellcheck={false}
+                        onInput={(e) => {
+                          setBotToken((e.target as HTMLInputElement).value);
+                          setBotUsername(null);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        class="res-btn res-btn-secondary tg-detect"
+                        disabled={checkingBot || botToken.trim().length === 0}
+                        onClick={() => void handleCheckBot()}
+                      >
+                        {checkingBot ? 'Checking…' : 'Check bot'}
+                      </button>
+                    </span>
+                  </div>
+
+                  <div class="res-naming-prefix-label tg-field">
+                    <label class="res-naming-talent" htmlFor="tg-user-id">
+                      Your Telegram user ID (pack owner)
+                    </label>
+                    <span class="tg-inline">
+                      <input
+                        id="tg-user-id"
+                        type="text"
+                        inputMode="numeric"
+                        class="res-prefix-input"
+                        value={userId}
+                        placeholder="123456789"
+                        autoComplete="off"
+                        onInput={(e) => setUserId((e.target as HTMLInputElement).value)}
+                      />
+                      <button
+                        type="button"
+                        class="res-btn res-btn-secondary tg-detect"
+                        disabled={detectingUser || botToken.trim().length === 0}
+                        onClick={() => void handleDetectUserId()}
+                      >
+                        {detectingUser ? 'Detecting…' : 'Detect user ID'}
+                      </button>
+                    </span>
+                  </div>
+                  <p class="res-separator-hint tg-hint">
+                    Detect reads the last private message your bot received, so message it first.
+                  </p>
+
+                  <label class="res-naming-prefix-label tg-field">
+                    <span class="res-naming-talent">Pack name</span>
+                    <input
+                      type="text"
+                      class="res-prefix-input"
+                      value={packBase}
+                      autoComplete="off"
+                      spellcheck={false}
+                      onInput={(e) => {
+                        setPackBase((e.target as HTMLInputElement).value);
+                        setExistingPack(null);
+                      }}
+                    />
+                  </label>
+                  <p class="res-separator-hint tg-hint">
+                    Letters, digits and underscores. Telegram appends <code class="res-sep-code">_by_yourbot</code>.
+                  </p>
+
+                  {visiblePacks.length > 0 && (
+                    <div class="tg-known">
+                      <p class="res-naming-prefixes-intro">
+                        {botUsername ? `Packs @${botUsername} created from this browser` : 'Packs created from this browser'}
+                      </p>
+                      <ul class="tg-known-list">
+                        {visiblePacks.map((pack) => (
+                          <li key={pack.name} class="tg-known-row">
+                            <span class="tg-known-text">
+                              <span class="tg-known-title">{pack.title}</span>
+                              <span class="tg-known-meta">
+                                {pack.name} · {pack.count} stickers{botUsername ? '' : ` · @${pack.bot}`}
+                              </span>
+                            </span>
+                            <button type="button" class="res-btn res-btn-secondary tg-known-use" onClick={() => usePack(pack)}>
+                              Use
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <label class="res-naming-prefix-label tg-field">
+                    <span class="res-naming-talent">Pack title</span>
+                    <input
+                      type="text"
+                      class="res-prefix-input"
+                      value={packTitle}
+                      maxLength={64}
+                      autoComplete="off"
+                      onInput={(e) => setPackTitle((e.target as HTMLInputElement).value)}
+                    />
+                  </label>
+
+                  {count > PACK_STICKER_LIMIT && (
+                    <p class="tg-error" role="alert">
+                      Telegram sticker packs hold at most {PACK_STICKER_LIMIT} stickers. Remove {count - PACK_STICKER_LIMIT} to create a pack, or download the ZIP.
+                    </p>
+                  )}
+                  {telegramError && (
+                    <p class="tg-error" role="alert">
+                      {telegramError}
+                    </p>
+                  )}
+                  {existingPack && (
+                    <div class="tg-exists" role="alert">
+                      <p class="tg-exists-text">
+                        <strong>{existingPack.title}</strong> ({existingPack.name}) already exists with {existingPack.count} stickers.
+                        {existingPack.count + count > PACK_STICKER_LIMIT
+                          ? ` Adding ${count} more would pass the ${PACK_STICKER_LIMIT} cap.`
+                          : ''}
+                      </p>
+                      <div class="tg-exists-actions">
+                        <button
+                          type="button"
+                          class="res-btn res-btn-secondary"
+                          disabled={existingPack.count + count > PACK_STICKER_LIMIT}
+                          onClick={() => void handleTelegramCreate('append')}
+                        >
+                          Add {count} to it
+                        </button>
+                        <button type="button" class="res-btn res-btn-secondary tg-danger" onClick={() => void handleTelegramCreate('replace')}>
+                          Replace it
+                        </button>
+                      </div>
+                      <p class="res-separator-hint tg-hint">Or change the pack name above to create a new one.</p>
+                    </div>
+                  )}
+
+                  <p class="res-separator-hint tg-zip-alt">
+                    No bot? {' '}
+                    <button type="button" class="tg-link-btn" disabled={exporting} onClick={() => void handleTelegramZip()}>
+                      {exporting ? 'Building ZIP…' : 'Download a ZIP'}
+                    </button>{' '}
+                    of 512px PNGs plus emoji.txt and upload them through @Stickers yourself.
+                  </p>
+                </fieldset>
+              )}
+
+              {telegramStep === 3 && (
+                <div class="tg-done" role="status" aria-live="polite">
+                  {telegramResult ? (
+                    <>
+                      <p class="tg-done-text">
+                        <strong>{telegramResult.title}</strong> now has {telegramResult.count} stickers.
+                      </p>
+                      <div class="tg-done-links">
+                        <a class="res-btn res-btn-primary tg-done-link" href={telegramResult.appLink}>
+                          Open in Telegram app
+                        </a>
+                        <a class="res-btn res-btn-secondary tg-done-link" href={telegramResult.link} target="_blank" rel="noopener">
+                          Open t.me link
+                        </a>
+                      </div>
+                      <p class="tg-done-url">{telegramResult.link}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p class="tg-done-text">
+                        {telegramProgress?.phase === 'upload' ? 'Uploading' : 'Preparing images'}{' '}
+                        {telegramProgress?.done ?? 0} of {telegramProgress?.total ?? count}…
+                      </p>
+                      <progress
+                        class="tg-progress-bar"
+                        max={(telegramProgress?.total ?? count) * 2}
+                        value={(telegramProgress?.phase === 'upload' ? telegramProgress.total : 0) + (telegramProgress?.done ?? 0)}
+                      />
+                      <p class="res-separator-hint">Keep this tab open until it finishes.</p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div class="res-modal-actions tg-actions">
+                {telegramStep === 1 && (
+                  <>
+                    <button type="button" class="res-btn res-btn-secondary" onClick={() => setTelegramModalOpen(false)}>
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      class="res-btn res-btn-primary"
+                      disabled={invalidEmojiCount > 0}
+                      onClick={() => setTelegramStep(2)}
+                    >
+                      Next
+                    </button>
+                  </>
+                )}
+                {telegramStep === 2 && (
+                  <>
+                    <button type="button" class="res-btn res-btn-secondary" disabled={exporting} onClick={() => setTelegramStep(1)}>
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      class="res-btn res-btn-primary"
+                      disabled={exporting || !packReady || existingPack !== null}
+                      onClick={() => void handleTelegramCreate()}
+                    >
+                      Create pack
+                    </button>
+                  </>
+                )}
+                {telegramStep === 3 && telegramResult && (
+                  <button type="button" class="res-btn res-btn-primary" onClick={() => setTelegramModalOpen(false)}>
+                    Done
+                  </button>
+                )}
               </div>
             </div>
           </div>,
@@ -1169,6 +1717,328 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         .res-btn:disabled {
           opacity: 0.55;
           cursor: not-allowed;
+        }
+
+        .tg-intro {
+          margin: 0 0 10px;
+        }
+
+        .tg-link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          color: var(--accent);
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .tg-link-btn:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+        }
+
+        .tg-emoji-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          max-height: 280px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .tg-emoji-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 6px 8px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: var(--bg-surface);
+        }
+
+        .tg-emoji-img {
+          width: 28px;
+          height: 28px;
+          object-fit: contain;
+          flex-shrink: 0;
+          border-radius: 4px;
+          background: var(--bg-elevated);
+        }
+
+        .tg-emoji-name {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .tg-emoji-emote {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--text-primary);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .tg-emoji-talent {
+          font-size: 10px;
+          color: var(--text-muted);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .tg-emoji-input {
+          width: 52px;
+          flex-shrink: 0;
+          padding: 6px 4px;
+          text-align: center;
+          font-size: 18px;
+          line-height: 1.2;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: var(--bg-base);
+          color: var(--text-primary);
+        }
+
+        .tg-emoji-input:focus {
+          outline: none;
+          border-color: var(--accent);
+        }
+
+        .tg-emoji-input.invalid {
+          border-color: var(--danger);
+        }
+
+        .tg-field {
+          margin-top: 12px;
+        }
+
+        .tg-hint {
+          margin-top: 6px;
+        }
+
+        .tg-inline {
+          display: flex;
+          gap: 8px;
+          align-items: stretch;
+        }
+
+        .tg-inline .res-prefix-input {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .tg-detect {
+          flex-shrink: 0;
+          padding: 8px 12px;
+        }
+
+        .tg-error {
+          margin: 14px 0 0;
+          padding: 10px 12px;
+          border-radius: var(--radius-sm);
+          border: 1px solid color-mix(in srgb, var(--danger) 50%, transparent);
+          background: color-mix(in srgb, var(--danger) 12%, var(--bg-surface));
+          color: var(--text-primary);
+          font-size: 12px;
+          line-height: 1.45;
+          word-break: break-word;
+        }
+
+        .tg-steps {
+          list-style: none;
+          margin: 0 0 16px;
+          padding: 0;
+          display: flex;
+          gap: 6px;
+        }
+
+        .tg-step {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          min-width: 0;
+          padding-bottom: 8px;
+          border-bottom: 2px solid var(--border);
+          color: var(--text-muted);
+          font-size: 11px;
+          font-weight: 600;
+        }
+
+        .tg-step.current {
+          color: var(--accent);
+          border-bottom-color: var(--accent);
+        }
+
+        .tg-step.done {
+          color: var(--text-secondary);
+          border-bottom-color: var(--accent-dim);
+        }
+
+        .tg-step-num {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          border: 1px solid currentColor;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          flex-shrink: 0;
+        }
+
+        .tg-step.current .tg-step-num {
+          background: var(--accent);
+          border-color: var(--accent);
+          color: #000;
+        }
+
+        .tg-step-label {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .tg-zip-alt {
+          margin-top: 16px;
+          padding-top: 12px;
+          border-top: 1px dashed var(--border);
+        }
+
+        .tg-progress-bar {
+          width: 100%;
+          height: 8px;
+          accent-color: var(--accent);
+        }
+
+        .tg-actions .res-btn {
+          flex: 1 1 auto;
+          white-space: nowrap;
+        }
+
+        .tg-done {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 4px 0;
+        }
+
+        .tg-done-text {
+          margin: 0;
+          font-size: 13px;
+          color: var(--text-primary);
+        }
+
+        .tg-done-link {
+          text-decoration: none;
+          display: inline-block;
+        }
+
+        .tg-done-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .tg-known {
+          margin-top: 10px;
+        }
+
+        .tg-known-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          max-height: 150px;
+          overflow-y: auto;
+        }
+
+        .tg-known-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 8px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: var(--bg-surface);
+        }
+
+        .tg-known-text {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .tg-known-title {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--text-primary);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .tg-known-meta {
+          font-size: 10px;
+          color: var(--text-muted);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .tg-known-use {
+          flex-shrink: 0;
+          padding: 5px 10px;
+          font-size: 12px;
+        }
+
+        .tg-exists {
+          margin: 14px 0 0;
+          padding: 10px 12px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--accent-dim);
+          background: var(--accent-glow);
+        }
+
+        .tg-exists-text {
+          margin: 0 0 10px;
+          font-size: 12px;
+          color: var(--text-primary);
+          line-height: 1.45;
+        }
+
+        .tg-exists-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .tg-exists-actions .res-btn {
+          flex: 1 1 auto;
+        }
+
+        .tg-danger:hover:not(:disabled) {
+          border-color: var(--danger);
+          color: var(--danger);
+        }
+
+        .tg-done-url {
+          margin: 0;
+          font-size: 11px;
+          color: var(--text-muted);
+          word-break: break-all;
         }
       `}</style>
     </div>
