@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { usePresence } from './use-presence';
+import { generationLabel } from '../generation-label';
 
 interface GenerationGroup {
   name: string;
@@ -127,7 +128,7 @@ export default function FilterBar({
                               onChange={() => onToggleGenerations([gen])}
                             />
                             <span class="gen-check">{active && <CheckIcon />}</span>
-                            <span class="gen-name">{gen}</span>
+                            <span class="gen-name">{generationLabel(group.name, gen)}</span>
                           </label>
                         );
                       })}
@@ -171,12 +172,8 @@ export default function FilterBar({
 
       <style>{`
         .filter-bar {
-          background-color: var(--glass-bg);
-          border-top: 1px solid var(--glass-border);
-          border-bottom: 1px solid var(--glass-border);
-          box-shadow: var(--glass-highlight);
-          -webkit-backdrop-filter: var(--glass-blur);
-          backdrop-filter: var(--glass-blur);
+          background-color: var(--bg-base);
+          border-bottom: 1px solid var(--border);
           position: sticky;
           top: 0;
           z-index: 40;
@@ -221,9 +218,9 @@ export default function FilterBar({
           display: flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 10px;
+          padding: 7px 10px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--border);
+          border: 1px solid transparent;
           background: var(--bg-elevated);
           color: var(--text-secondary);
           font-size: 12px;
@@ -234,7 +231,7 @@ export default function FilterBar({
 
         .gen-dropdown-btn:hover,
         .gen-dropdown-btn.open {
-          border-color: var(--border-light);
+          background: var(--bg-hover);
           color: var(--text-primary);
         }
 
@@ -410,10 +407,10 @@ export default function FilterBar({
         .search-input {
           width: 100%;
           background: var(--bg-elevated);
-          border: 1px solid var(--border);
+          border: 1px solid transparent;
           border-radius: var(--radius-sm);
           color: var(--text-primary);
-          padding: 6px 32px 6px 32px;
+          padding: 7px 32px 7px 32px;
           font-size: 13px;
           transition: all var(--transition);
           outline: none;
@@ -452,17 +449,16 @@ export default function FilterBar({
 
         .clear-all {
           background: none;
-          border: 1px solid var(--border);
+          border: none;
           color: var(--text-muted);
           font-size: 12px;
-          padding: 5px 10px;
-          border-radius: var(--radius-sm);
-          transition: all var(--transition);
+          font-weight: 500;
+          padding: 6px 4px;
+          transition: color var(--transition);
           white-space: nowrap;
         }
 
         .clear-all:hover {
-          border-color: var(--danger);
           color: var(--danger);
         }
       `}</style>

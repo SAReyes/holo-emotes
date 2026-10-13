@@ -50,7 +50,6 @@ export default function BranchSection({
         onClick={onToggle}
         aria-expanded={expanded}
       >
-        <div class="branch-accent" />
         <svg
           class={`chevron ${expanded ? 'open' : ''}`}
           width="16"
@@ -67,7 +66,7 @@ export default function BranchSection({
         <span class="branch-name">{branch.name}</span>
         <div class="branch-badges">
           <span class="branch-meta">{genCount} gen{genCount !== 1 ? 's' : ''} · {talentCount} talents</span>
-          <span class="badge badge--emotes">{emoteCount.toLocaleString()} emotes</span>
+          <span class="branch-count">{emoteCount.toLocaleString()}</span>
         </div>
       </button>
 
@@ -95,52 +94,33 @@ export default function BranchSection({
 
       <style>{`
         .branch-section {
-          background: var(--glass-bg);
-          border: 1px solid var(--glass-border);
-          border-radius: var(--radius-lg);
-          box-shadow: var(--glass-highlight), 0 8px 32px rgba(0, 0, 0, 0.25);
-          overflow: hidden;
-          transition: border-color var(--transition), box-shadow var(--transition);
-        }
-
-        .branch-section:has(.branch-header[aria-expanded="true"]) {
-          border-color: color-mix(in srgb, var(--branch-color) 35%, var(--glass-border));
-          box-shadow: var(--glass-highlight), 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px color-mix(in srgb, var(--branch-color) 12%, transparent);
+          border-bottom: 1px solid var(--border);
         }
 
         .branch-header {
           width: 100%;
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 14px 16px;
+          gap: 12px;
+          padding: 16px 0;
           background: none;
           border: none;
           color: var(--text-primary);
           text-align: left;
           cursor: pointer;
-          transition: background var(--transition);
-          position: relative;
-        }
-
-        .branch-header:hover {
-          background: var(--surface-tint);
-        }
-
-        .branch-accent {
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 3px;
-          background: var(--branch-color);
-          border-radius: 0 2px 2px 0;
         }
 
         .chevron {
+          order: 3;
           color: var(--text-muted);
           flex-shrink: 0;
           transition: transform var(--transition), color var(--transition);
+        }
+
+        @media (hover: hover) {
+          .branch-header:hover .chevron {
+            color: var(--text-secondary);
+          }
         }
 
         .chevron.open {
@@ -149,21 +129,22 @@ export default function BranchSection({
         }
 
         .branch-name {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 600;
           letter-spacing: -0.2px;
           flex: 1;
+          min-width: 0;
         }
 
         .branch-badges {
           display: flex;
-          gap: 6px;
-          align-items: center;
+          gap: 12px;
+          align-items: baseline;
         }
 
         .branch-meta {
           display: none;
-          font-size: 11px;
+          font-size: 12px;
           color: var(--text-muted);
           white-space: nowrap;
         }
@@ -174,32 +155,23 @@ export default function BranchSection({
           }
         }
 
-        .badge {
-          font-size: 11px;
-          padding: 2px 8px;
-          border-radius: 10px;
-          font-weight: 600;
+        .branch-count {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-muted);
+          font-variant-numeric: tabular-nums;
           white-space: nowrap;
+          transition: color var(--transition);
         }
 
-        .badge--emotes {
-          background: color-mix(in srgb, var(--branch-color) 14%, transparent);
-          border: 1px solid color-mix(in srgb, var(--branch-color) 28%, transparent);
+        .branch-header[aria-expanded="true"] .branch-count {
           color: var(--branch-color);
         }
 
         .branch-body {
-          border-top: 1px solid var(--glass-border);
-          padding: 4px 6px 8px;
+          padding: 0 0 12px;
           display: flex;
           flex-direction: column;
-          gap: 2px;
-        }
-
-        @media (min-width: 640px) {
-          .branch-body {
-            padding: 6px 10px 12px;
-          }
         }
       `}</style>
     </div>

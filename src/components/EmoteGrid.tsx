@@ -123,7 +123,7 @@ export default function EmoteGrid({
         }
 
         .emote-card.selected {
-          background: var(--accent-glow);
+          background: var(--surface-tint);
           box-shadow: 0 0 0 1.5px var(--accent);
           color: var(--text-primary);
         }
@@ -134,7 +134,7 @@ export default function EmoteGrid({
         }
 
         .emote-card.selected:hover {
-          box-shadow: 0 0 0 1.5px var(--accent-hover), 0 6px 18px rgba(51, 204, 255, 0.18);
+          box-shadow: 0 0 0 1.5px var(--accent-hover);
         }
 
         .emote-img-wrap {

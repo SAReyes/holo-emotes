@@ -1077,12 +1077,10 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           bottom: 0;
           left: 0;
           right: 0;
-          background: var(--glass-bg);
-          border-top: 1px solid var(--glass-border-strong);
-          -webkit-backdrop-filter: var(--glass-blur);
-          backdrop-filter: var(--glass-blur);
+          background: var(--bg-surface);
+          border-top: 1px solid var(--border);
           z-index: 60;
-          box-shadow: var(--glass-highlight), 0 -8px 40px rgba(0, 0, 0, 0.35), 0 -1px 24px rgba(51, 204, 255, 0.08);
+          box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
           padding-bottom: env(safe-area-inset-bottom);
           animation: slide-up 240ms ease-out;
         }
@@ -1192,8 +1190,8 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           gap: 5px;
           padding: 7px 12px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--glass-border-strong);
-          background: var(--surface-tint);
+          border: 1px solid var(--border);
+          background: none;
           color: var(--text-secondary);
           font-size: 12px;
           font-weight: 500;
@@ -1203,7 +1201,6 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
         .btn-clear:hover {
           border-color: var(--danger);
           color: var(--danger);
-          background: color-mix(in srgb, var(--danger) 10%, var(--bg-elevated));
         }
 
         .export-wrap {
@@ -1216,18 +1213,17 @@ export default function SelectionBar({ selected, onClear, onRemove }: Props) {
           gap: 5px;
           padding: 7px 14px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--accent-dim);
-          background: var(--accent-glow);
-          color: var(--accent);
+          border: 1px solid var(--accent);
+          background: var(--accent);
+          color: #000;
           font-size: 12px;
           font-weight: 600;
           transition: all var(--transition);
         }
 
         .btn-export:not(:disabled):hover {
-          background: var(--accent);
-          color: #000;
-          border-color: var(--accent);
+          background: var(--accent-hover);
+          border-color: var(--accent-hover);
         }
 
         .btn-export:disabled {

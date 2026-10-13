@@ -17,6 +17,26 @@ widens padding, gaps, and minimum widths for desktop. Never write a
 `max-width` query. If a style only makes sense on desktop, put it inside the
 `640px` block.
 
+## Surfaces
+
+The browser is a list, not a stack of cards. Branch, generation and talent
+rows are separated by hairline `var(--border)` dividers and whitespace; they
+have no background, border radius, left accent rail, shadow or tinted count
+pill. Counts are plain tabular numbers in `--text-muted`. Branch colour
+appears only on the chevron and count of an expanded branch. Generation
+names are shown through `generationLabel` in `src/generation-label.ts`,
+which strips the branch name the wiki repeats in every generation title.
+Select all lives in a small toolbar above the emote grid, inside the
+collapsible body, so a talent row is only name, count and chevron and never
+changes shape when it opens.
+The header word mark is solid `--accent`, and the page background is flat.
+Glass (`--glass-*` tokens and `--glass-blur`) is reserved for floating
+surfaces: the generation dropdown, the export menu, the tooltip and the
+modals. The sticky filter bar and the fixed selection bar are opaque
+`--bg-base` / `--bg-surface` with a hairline edge. The export button is the
+one solid accent fill on the page. Changed 2026-10-13 because the card and
+glow treatment read as generic.
+
 ## Touch rules
 
 Each of these fixed a real bug on an iPhone. Keep them.

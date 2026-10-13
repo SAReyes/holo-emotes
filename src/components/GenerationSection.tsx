@@ -2,6 +2,7 @@ import type { TalentMap, SelectedEmote } from '../types';
 import { hasTalentTransform } from '../emote-naming';
 import TalentSection from './TalentSection';
 import Collapsible from './Collapsible';
+import { generationLabel } from '../generation-label';
 
 interface Props {
   branchName: string;
@@ -55,7 +56,7 @@ export default function GenerationSection({
         >
           <polyline points="9 18 15 12 9 6" />
         </svg>
-        <span class="gen-name">{generation}</span>
+        <span class="gen-name">{generationLabel(branchName, generation)}</span>
         <div class="gen-badges">
           <span class="gen-meta">{talentCount} talent{talentCount !== 1 ? 's' : ''}</span>
           <span class="gen-count">{emoteCount} emotes</span>
@@ -85,33 +86,24 @@ export default function GenerationSection({
       </Collapsible>
 
       <style>{`
-        .gen-section {
-          border-radius: var(--radius-md);
-          transition: background var(--transition);
-        }
-
-        .gen-section:has(> .gen-header[aria-expanded="true"]) {
-          background: var(--surface-tint);
-        }
-
         .gen-header {
           width: 100%;
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 9px 10px;
+          padding: 10px 0;
           background: none;
           border: none;
-          border-radius: var(--radius-md);
-          color: var(--text-secondary);
+          color: var(--text-muted);
           text-align: left;
           cursor: pointer;
-          transition: background var(--transition), color var(--transition);
+          transition: color var(--transition);
         }
 
-        .gen-header:hover {
-          background: var(--surface-tint-hover);
-          color: var(--text-primary);
+        @media (hover: hover) {
+          .gen-header:hover {
+            color: var(--text-primary);
+          }
         }
 
         .gen-header[aria-expanded="true"] {
@@ -130,10 +122,12 @@ export default function GenerationSection({
         }
 
         .gen-name {
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 600;
           flex: 1;
-          letter-spacing: -0.1px;
+          min-width: 0;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
         }
 
         .gen-badges {
@@ -156,8 +150,8 @@ export default function GenerationSection({
         }
 
         .gen-count {
-          font-size: 11px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 500;
           color: var(--text-muted);
           white-space: nowrap;
           font-variant-numeric: tabular-nums;
@@ -168,18 +162,15 @@ export default function GenerationSection({
         }
 
         .gen-body {
-          margin: 0 0 6px 15px;
-          padding-left: 6px;
-          border-left: 1px solid var(--glass-border-strong);
+          margin: 0 0 8px;
+          padding-left: 12px;
           display: flex;
           flex-direction: column;
-          gap: 2px;
         }
 
         @media (min-width: 640px) {
           .gen-body {
-            margin-left: 17px;
-            padding-left: 8px;
+            padding-left: 20px;
           }
         }
       `}</style>

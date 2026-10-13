@@ -90,33 +90,35 @@ export default function TalentSection({
           </span>
           <span class="talent-count">{count} emote{count !== 1 ? 's' : ''}</span>
         </button>
-        <button
-          type="button"
-          class={`select-all-btn ${isFullySelected ? 'deselect' : ''}`}
-          onClick={handleSelectToggle}
-          title={isFullySelected ? 'Deselect all from this talent' : 'Select all from this talent'}
-        >
-          {isFullySelected ? (
-            <>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Deselect all
-            </>
-          ) : (
-            <>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <polyline points="9 12 11 14 15 10" />
-              </svg>
-              Select all
-            </>
-          )}
-        </button>
       </div>
 
       <Collapsible open={expanded}>
         <div class="talent-body">
+          <div class="talent-tools">
+            <button
+              type="button"
+              class={`select-all-btn ${isFullySelected ? 'deselect' : ''}`}
+              onClick={handleSelectToggle}
+              title={isFullySelected ? 'Deselect all from this talent' : 'Select all from this talent'}
+            >
+              {isFullySelected ? (
+                <>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Deselect all
+                </>
+              ) : (
+                <>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <polyline points="9 12 11 14 15 10" />
+                  </svg>
+                  Select all
+                </>
+              )}
+            </button>
+          </div>
           <EmoteGrid
             branchName={branchName}
             generation={generation}
@@ -129,23 +131,18 @@ export default function TalentSection({
       </Collapsible>
 
       <style>{`
-        .talent-section {
-          border-radius: var(--radius-sm);
-        }
-
         .talent-header {
           display: flex;
           align-items: center;
-          gap: 7px;
-          padding: 0 8px 0 0;
-          border-radius: var(--radius-sm);
+          gap: 12px;
           color: var(--text-secondary);
-          transition: background var(--transition), color var(--transition);
+          transition: color var(--transition);
         }
 
-        .talent-header:hover {
-          background: var(--surface-tint-hover);
-          color: var(--text-primary);
+        @media (hover: hover) {
+          .talent-header:hover {
+            color: var(--text-primary);
+          }
         }
 
         .talent-toggle {
@@ -153,8 +150,8 @@ export default function TalentSection({
           min-width: 0;
           display: flex;
           align-items: center;
-          gap: 7px;
-          padding: 8px 10px;
+          gap: 8px;
+          padding: 8px 0;
           background: none;
           border: none;
           color: inherit;
@@ -187,8 +184,8 @@ export default function TalentSection({
         }
 
         .talent-name {
-          font-size: 12.5px;
-          font-weight: 600;
+          font-size: 13.5px;
+          font-weight: 500;
           min-width: 0;
           overflow-wrap: anywhere;
         }
@@ -214,15 +211,11 @@ export default function TalentSection({
           align-items: center;
           gap: 3px;
           flex-shrink: 0;
-          font-size: 9px;
-          font-weight: 700;
+          font-size: 10px;
+          font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.06em;
           color: var(--warning, #e5a00d);
-          border: 1px solid color-mix(in srgb, var(--warning, #e5a00d) 45%, var(--border));
-          background: color-mix(in srgb, var(--warning, #e5a00d) 12%, var(--bg-elevated));
-          padding: 2px 5px;
-          border-radius: 4px;
           line-height: 1;
         }
 
@@ -232,53 +225,48 @@ export default function TalentSection({
         }
 
         .talent-count {
-          font-size: 11px;
+          font-size: 12px;
           color: var(--text-muted);
           white-space: nowrap;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .talent-tools {
+          display: flex;
+          justify-content: flex-end;
+          padding-bottom: 4px;
         }
 
         .select-all-btn {
           display: flex;
           align-items: center;
           gap: 4px;
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 500;
-          padding: 4px 9px;
-          border-radius: 999px;
-          border: 1px solid transparent;
+          padding: 6px 0;
+          border: none;
           background: transparent;
           color: var(--text-muted);
-          transition: all var(--transition);
+          transition: color var(--transition);
           white-space: nowrap;
-          flex-shrink: 0;
         }
 
-        .select-all-btn:hover {
-          border-color: var(--accent-dim);
-          color: var(--accent);
-          background: var(--accent-glow);
+        @media (hover: hover) {
+          .select-all-btn:hover {
+            color: var(--accent);
+          }
+
+          .select-all-btn.deselect:hover {
+            color: var(--danger);
+          }
         }
 
         .select-all-btn.deselect {
-          border-color: color-mix(in srgb, var(--accent) 35%, transparent);
           color: var(--accent);
-          background: var(--accent-glow);
-        }
-
-        .select-all-btn.deselect:hover {
-          border-color: var(--danger);
-          color: var(--danger);
-          background: color-mix(in srgb, var(--danger) 10%, transparent);
         }
 
         .talent-body {
-          padding: 2px 2px 10px 6px;
-        }
-
-        @media (min-width: 640px) {
-          .talent-body {
-            padding: 4px 4px 14px 10px;
-          }
+          padding: 0 0 12px;
         }
       `}</style>
     </div>

@@ -143,7 +143,7 @@ export default function EmoteBrowser({ data }: Props) {
       <header class="app-header">
         <div class="header-inner">
           <h1>
-            <span class="holo-gradient">Holo</span> Emotes
+            <span class="holo-mark">Holo</span> Emotes
           </h1>
           <p class="header-subtitle">{totalEmoteCount.toLocaleString()} emotes across {data.length} branches</p>
         </div>
@@ -230,8 +230,7 @@ export default function EmoteBrowser({ data }: Props) {
         }
 
         .app-header {
-          background: linear-gradient(180deg, var(--bg-surface) 0%, transparent 100%);
-          padding: 12px 0 10px;
+          padding: 18px 0 6px;
         }
 
         .header-inner {
@@ -251,11 +250,8 @@ export default function EmoteBrowser({ data }: Props) {
           line-height: 1.2;
         }
 
-        .holo-gradient {
-          background: linear-gradient(90deg, #33ccff 0%, #cc66ff 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+        .holo-mark {
+          color: var(--accent);
         }
 
         .header-subtitle {
@@ -268,15 +264,14 @@ export default function EmoteBrowser({ data }: Props) {
           max-width: 1600px;
           width: 100%;
           margin: 0 auto;
-          padding: 12px 12px 0;
+          padding: 0 16px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
         }
 
         @media (min-width: 640px) {
           .app-header {
-            padding: 20px 0 16px;
+            padding: 28px 0 10px;
           }
 
           .header-inner,
@@ -286,7 +281,7 @@ export default function EmoteBrowser({ data }: Props) {
           }
 
           .app-main {
-            padding: 16px 24px 0;
+            padding: 0 24px;
           }
         }
 
